@@ -2,6 +2,7 @@
 #Esta biblioteca foi feita para a versão 2.7 do Python, não sendo compatível com as versões 3.x do mesmo.
 
 class Grafo:
+	nome_output='output.txt'
 	def __init__(self,entrada_txt=False,formato_lista=False,formato_matriz=False):
 		u'''
 		entrada_txt pode ser 'False' ou uma string contendo o endereço de um arquivo .txt com um grafo. Se for 'False', então significa que o arquivo com o grafo possui outro formato (.sql por exemplo, algo que ficará em aberto para possíveis evoluções do código). Mas caso seja uma string, então, o arquivo de texto com o grafo possui o seguinte formato:
@@ -28,6 +29,9 @@ class Grafo:
 			except Exception,e:
 				print u'Houve algum erro na criação do grafo oriundo do arquivo txt indicado. Veja:\n\n'
 				print e
+
+		open(self.nome_output,'wb') #abrindo no formato 'write byte' apenas pra criar um arquivo em branco com tal nome (ou apagar os dados de algum com o mesmo nome)
+		self.output=open(self.nome_output,'ab') #abrindo no formato 'append byte'
 	
 	def criar_lista_grafo_a_partir_de_entrada_txt(self,formato_lista):
 		u'''Se "formato_lista==True", então será criada uma lista a partir de um grafo oriundo de um arquivo txt'''
@@ -58,11 +62,21 @@ class Grafo:
 		else:
 			self.list_view=False
 
+	def calcular_memoria_necessaria(self):
+		qtd_memoria_necessaria=self.qtd_vertices*(20+4*self.qtd_vertices) #pois no python, uma lista vazia custa 20bytes, e uma lista com N inteiros custa 20+4*N bytes.
+		if qtd_memoria_necessaria>=1024**3: #valor em Gbs
+			return '%s Gbs'%str(qtd_memoria_necessaria/(1024.0**3))[:6]
+		elif qtd_memoria_necessaria>=1024**2: #valor em Mbs
+			return '%s Mbs'%str(qtd_memoria_necessaria/(1024.0**2))[:6]
+		elif qtd_memoria_necessaria>=1024: #valor em Kbs
+			return '%s Kbs'%str(qtd_memoria_necessaria/(1024.0**1))[:6]
+		else: #valor em Bts
+			return '%s Bytes'%qtd_memoria_necessaria
+
 	def criar_matriz_grafo_a_partir_de_entrada_txt(self,formato_matriz):
 		u'''Se "formato_matriz==True", então será criada uma matriz a partir de um grafo oriundo de um arquivo txt'''
 		if formato_matriz:
-			qtd_memoria_necessaria=(20+4*self.qtd_vertices)*(20+4*self.qtd_vertices) #pois no python, uma lista vazia custa 20bytes, e uma lista com N inteiros custa 20+4*N bytes.
-			pergunta='A representação matricial do grafo pedido requer um total de %s Gbs de memória. Tem certeza que deseja criar esta representação? (S/N)\n'%str(qtd_memoria_necessaria/(1024.0**3))[:6]
+			pergunta='A representação matricial do grafo pedido requer um total de %s de memória. Tem certeza que deseja criar esta representação? (S/N)\n'%self.calcular_memoria_necessaria()
 			resposta=''
 			while resposta not in ['S','N']:
 				resposta=raw_input(pergunta)
@@ -135,12 +149,9 @@ class Grafo:
 			return meio+1
 
 	def imprimir_propriedades(self):
-		nome_arquivo='propriedades.txt'
-		open(nome_arquivo,'wb') #abrindo no formato 'write byte' apenas pra criar um arquivo em branco com tal nome (ou apagar os dados de algum com o mesmo nome)
-		arquivo_propriedades=open(nome_arquivo,'ab') #abrindo no formato 'append byte'
-		arquivo_propriedades.write('número de vértices: %s\n'%self.qtd_vertices)
+		self.output.write('número de vértices: %s\n'%self.qtd_vertices)
 		if self.calcular_numero_arestas():
-			arquivo_propriedades.write('número de arestas: %s\n'%self.qtd_arestas)
+			self.output.write('número de arestas: %s\n'%self.qtd_arestas)
 		
 		if self.criar_lista_de_graus():
 			grau_min=min(self.lista_graus)
@@ -152,49 +163,63 @@ class Grafo:
 				mediana_graus=lista_graus_ordenadas[self.qtd_vertices/2]
 			else:
 				mediana_graus=(lista_graus_ordenadas[self.qtd_vertices/2]+lista_graus_ordenadas[(self.qtd_vertices/2)-1])/2.0
-			arquivo_propriedades.write('''\
+			self.output.write('''\
 grau mínimo: %s
 grau máximo: %s
 grau médio: %s
 mediana de grau: %s\
 '''%(grau_min,grau_max,grau_medio,mediana_graus))
 
+	def ver_vizinhos(self,indice_vertice):
+		u'''Esta função retornará os vizinhos de um determinado vértice, seja o grafo uma lista ou seja ele uma matriz.'''
+		if self.list_view:
+			return self.grafo_lista[indice_vertice]
+		elif self.matrix_view:
+			return [i for i,v in enumerate(self.grafo_matriz[indice_vertice]) if v==1]
+		return []
+
 	def gerar_arvore_da_bfs(self,vertice_inicial): #BFS(busca em largura)
 		u'''Algoritmo:
-		1.Desmarcar todos os vértices -- O(n)
-		2.Definir fila Q vazia
-		3.Marcar s e inserir s na fila Q
-		4.Enquanto Q não estiver vazia --------- passos de 4 a 9 geram uma ordem igual a O(m), onde m=qtd de vértices.
-			5.Retirar v de Q
-			6.Para todo vizinho w de v faça
-				7.Se w não estiver marcado
-					8.marcar w
-					9.inserir w em Q
-
+		1.Desmarcar todos os vértices
+		2.Definir fila "descobertos" inicialmente como vazia
+		3.Marcar o "indice_inicial" e inserí-lo na fila "descobertos"
+		4.Enquanto "descobertos" não estiver vazia:
+			5.Retirar o vértice "v_descoberto" de "descobertos"
+			6.Para todo vértice vizinho "v_vizinho" de v_descoberto faça
+				7.Se v_vizinho não estiver marcado
+					8.marcar v_vizinho
+					9.inserir v_vizinho em "descobertos"
+		
+		#complexidades
+		passo 1: O(n)
+		passos de 4 a 9: O(m), onde m=qtd de vértices.
+		
 		resultado: O(n+m)
 		'''
 		indice_inicial=vertice_inicial-1
 
 		desmarcados=[1]*self.qtd_vertices #1=desmarcado 0=marcado
 		desmarcados[indice_inicial]=0
-		Q=[indice_inicial]
+		descobertos=[indice_inicial]
 		caminho=[]
-		while len(Q)!=0:
-			for v in Q[:]:
-				for w in self.grafo_lista[v]:
-					if desmarcados[w]:
-						desmarcados[w]=0
-						Q.append(w)
-			caminho.append(Q[0]+1)
-			del Q[0]
-		print caminho
-		#if self.qtd_vertices>=indice_inicial>=0:
-		#	self.busca_em_largura(indice_vertice)
-		#else:
-		#	print u'Digite um vértice válido!'
-
+		arvore_bfs=[[vertice_inicial]]
+		while len(descobertos)!=0:
+			nova_camada=[]
+			for v_descoberto in descobertos[:]:
+				for v_vizinho in self.ver_vizinhos(v_descoberto):
+					if desmarcados[v_vizinho]:
+						desmarcados[v_vizinho]=0
+						descobertos.append(v_vizinho)
+						nova_camada.append(v_vizinho+1)
+			caminho.append(descobertos[0]+1)
+			del descobertos[0]
+			if len(nova_camada)>0:
+				arvore_bfs.append(nova_camada)
+		texto_output='\n\nTomando o vértice "%s" como ponto de partida, o caminho percorrido pelo algoritmo da BFS foi:\n%s'%(vertice_inicial,str(caminho)[1:-1])
+		print arvore_bfs
+		self.output.write(texto_output)
 
 grafo=Grafo(entrada_txt='teste.txt',formato_lista=True,formato_matriz=True)
-#grafo=Grafo(entrada_txt='as_graph.txt',formato_lista=True,formato_matriz=False)
+#grafo=Grafo(entrada_txt='as_graph.txt',formato_lista=True,formato_matriz=True)
 grafo.imprimir_propriedades()
 grafo.gerar_arvore_da_bfs(1)

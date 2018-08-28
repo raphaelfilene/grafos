@@ -1,0 +1,9 @@
+número de vértices: 7
+número de arestas: 20
+grau mínimo: 2
+grau máximo: 4
+grau médio: 2.85714285714
+mediana de grau: 3
+
+Tomando o vértice "1" como ponto de partida, o caminho percorrido pelo algoritmo da BFS foi:
+1, 2, 3, 4, 6, 7, 5
