@@ -202,24 +202,27 @@ mediana de grau: %s\
 		desmarcados[indice_inicial]=0
 		descobertos=[indice_inicial]
 		caminho=[]
-		arvore_bfs=[[vertice_inicial]]
+		arvore_bfs=[-1]*self.qtd_vertices #-1=sem pai; i=index do vértice do pai
+		camadas=[-1]*self.qtd_vertices #-1 significa que a camada daquele vértice ainda não foi analisada.
+		camadas[indice_inicial]=0
+		camada_atual=0
 		while len(descobertos)!=0:
-			nova_camada=[]
+			camada_atual+=1
 			for v_descoberto in descobertos[:]:
 				for v_vizinho in self.ver_vizinhos(v_descoberto):
 					if desmarcados[v_vizinho]:
 						desmarcados[v_vizinho]=0
 						descobertos.append(v_vizinho)
-						nova_camada.append(v_vizinho+1)
+						arvore_bfs[v_vizinho]=v_descoberto+1
+						camadas[v_vizinho]=camada_atual
 			caminho.append(descobertos[0]+1)
 			del descobertos[0]
-			if len(nova_camada)>0:
-				arvore_bfs.append(nova_camada)
 		texto_output='\n\nTomando o vértice "%s" como ponto de partida, o caminho percorrido pelo algoritmo da BFS foi:\n%s'%(vertice_inicial,str(caminho)[1:-1])
-		print arvore_bfs
+		texto_output+='\n\nOs pais de cada vértice são:\n%s'%(str(arvore_bfs)[1:-1])
+		texto_output+='\n\nAs camadas de cada vértice são:\n%s'%(str(camadas)[1:-1])
 		self.output.write(texto_output)
 
 grafo=Grafo(entrada_txt='teste.txt',formato_lista=True,formato_matriz=True)
 #grafo=Grafo(entrada_txt='as_graph.txt',formato_lista=True,formato_matriz=True)
 grafo.imprimir_propriedades()
-grafo.gerar_arvore_da_bfs(1)
+grafo.gerar_arvore_da_bfs(3)
