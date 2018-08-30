@@ -208,13 +208,13 @@ mediana de grau: %s\
 		camada_atual=0
 		while len(descobertos)!=0:
 			camada_atual+=1
-			for v_descoberto in descobertos[:]:
-				for v_vizinho in self.ver_vizinhos(v_descoberto):
-					if desmarcados[v_vizinho]:
-						desmarcados[v_vizinho]=0
-						descobertos.append(v_vizinho)
-						arvore_bfs[v_vizinho]=v_descoberto+1
-						camadas[v_vizinho]=camada_atual
+			v_descoberto = descobertos[0]
+			for v_vizinho in self.ver_vizinhos(v_descoberto):
+				if desmarcados[v_vizinho]:
+					desmarcados[v_vizinho]=0
+					descobertos.append(v_vizinho)
+					arvore_bfs[v_vizinho]=v_descoberto+1
+					camadas[v_vizinho]=camada_atual
 			caminho.append(descobertos[0]+1)
 			del descobertos[0]
 		texto_output='\n\nTomando o vértice "%s" como ponto de partida, o caminho percorrido pelo algoritmo da BFS foi:\n%s'%(vertice_inicial,str(caminho)[1:-1])
@@ -222,7 +222,52 @@ mediana de grau: %s\
 		texto_output+='\n\nAs camadas de cada vértice são:\n%s'%(str(camadas)[1:-1])
 		self.output.write(texto_output)
 
-grafo=Grafo(entrada_txt='teste.txt',formato_lista=True,formato_matriz=True)
-#grafo=Grafo(entrada_txt='as_graph.txt',formato_lista=True,formato_matriz=True)
+	def gerar_arvore_da_dfs(self,vertice_inicial): #DFS(busca em profundida)
+		u'''Algoritmo:
+		1.Desmarcar todos os vérticecs -- O(n)
+		2.Definir pilha P com um elemento s
+		3.Enquanto P não estiver vazia --------- passos 3 a 8 geram uma ordem igual a O(m), onde m=qtd de vértices.
+			4.Remover v_descoberto de P // no topo da pilha
+			5.Se v_descoberto não estiver marcado
+				6.Marcar v_descoberto como descoberto
+				7.Para cada aresta (v_descoberto,v_vizinho) incidente a v_descoberto
+					8.Adicionar v_vizinho em P // no topo
+
+		resultado: O(n+m)
+		'''
+		indice_inicial = vertice_inicial-1
+
+		marcados = set() 
+		P = [indice_inicial]
+		caminho = []
+		arvore_dfs = [-1]*self.qtd_vertices
+		camadas = [-1]*self.qtd_vertices
+		camadas[indice_inicial] = 0
+		camada_atual = 0
+
+		while P != []:
+			
+			v_descoberto = P.pop()
+
+			if v_descoberto not in marcados:
+				marcados.add(v_descoberto)
+				camada_atual += 1
+
+				for v_vizinho in self.grafo_lista[v_descoberto]:
+
+					if v_vizinho not in marcados:
+						P.append(v_vizinho)
+						arvore_dfs[v_vizinho] = v_descoberto+1
+						camadas[v_vizinho] = camada_atual
+
+				caminho.append(v_descoberto+1)
+
+		texto_output='\n\nTomando o vértice "%s" como ponto de partida, o caminho percorrido pelo algoritmo da DFS foi:\n%s'%(vertice_inicial,str(caminho)[1:-1])
+		texto_output+='\n\nOs pais de cada vértice são:\n%s'%(str(arvore_dfs)[1:-1])
+		texto_output+='\n\nAs camadas de cada vértice são:\n%s'%(str(camadas)[1:-1])
+		self.output.write(texto_output)
+
+#grafo=Grafo(entrada_txt='teste.txt',formato_lista=True,formato_matriz=False)
+grafo=Grafo(entrada_txt='as_graph.txt',formato_lista=True,formato_matriz=False)
 grafo.imprimir_propriedades()
-grafo.gerar_arvore_da_bfs(3)
+grafo.gerar_arvore_da_dfs(1)
