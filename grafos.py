@@ -266,15 +266,13 @@ mediana de grau: %s\
 		indice_descobertos = 0
 
 		while(len(descobertos) > indice_descobertos):
-
-			camada_atual+=1
 			v_descoberto = descobertos[indice_descobertos]
 			for v_vizinho in self.ver_vizinhos(v_descoberto):
 				if v_vizinho not in marcados:
 					marcados.add(v_vizinho)
 					descobertos.append(v_vizinho)
 					arvore_bfs[v_vizinho]=v_descoberto+1
-					camadas[v_vizinho]=camada_atual
+					camadas[v_vizinho]=camadas[v_descoberto]+1
 			caminho.append(descobertos[indice_descobertos]+1)
 			indice_descobertos += 1
 
@@ -367,11 +365,8 @@ grafo=Grafo(entrada_txt='as_graph.txt',formato_lista=True,formato_matriz=False)
 end = time.time()
 print(end-start)
 
-#start = time.time()
-#grafo.imprimir_propriedades()
-#grafo.gerar_arvore_da_dfs(1)
-#end = time.time()
-#print(end-start)
-
-grafo.pai(1,543)
-grafo.nivel(2,452)
+start = time.time()
+grafo.imprimir_propriedades()
+grafo.gerar_arvore_da_bfs(1)
+end = time.time()
+print(end-start)
