@@ -66,8 +66,8 @@ class Grafo:
 
 				#checando se os vértices possuem identificador superior ao máximo permitido
 				elif int(v1) > self.qtd_vertices or int(v2) > self.qtd_vertices:
-					continue
 					print "Linha não considerada pois referencia vértices que ultrapassam a quantidade indicada"
+					continue
 
 				else:
 
@@ -118,16 +118,40 @@ class Grafo:
 				self.grafo_matriz=[]
 				linha=[0]*self.qtd_vertices
 				for i in xrange(self.qtd_vertices):
-					self.grafo_matriz.append(linha[:]) #ao fazer linha[:] em vez de apenas linha, eu obrigo o python a criar matrizes iguais a linha porém sem copiar utilizar o mesmo endereço de memória (o que seria errado)
+					self.grafo_matriz.append(linha[:]) #ao fazer linha[:] em vez de apenas linha, eu obrigo o python a criar matrizes iguais a linha porém sem utilizar o mesmo endereço de memória (o que seria errado)
 				if self.list_view:
 					for v1 in xrange(self.qtd_vertices):
 						for v2 in self.grafo_lista[v1]:
 							self.grafo_matriz[v1][v2]=1
 				else:
+
+					partition_format = ' '
+					try:
+						v1,espaco,v2 = self.lista_geral[1].partition(partition_format)
+						teste = int(v1) #testa se a separação é feita por ' '
+					except:
+						try:
+							self.lista_geral[1].partition('\t')
+							partition_format = '\t'
+						except:
+							pass
+
 					for i in self.lista_geral[1:]: #ex: i="1 2"
-						v1,espaco,v2=i.partition(' ') #ex: v1="1", espaco=" ", v2="2"
-						self.grafo_matriz[int(v1)-1][int(v2)-1]=1 #ex: para i="1 2", o "1" representará o índice 0 e o "2" representará o índice 1, logo, uma aresta(0,1)
-						self.grafo_matriz[int(v2)-1][int(v1)-1]=1
+						v1,espaco,v2=i.partition(partition_format) #ex: v1="1", espaco=" ", v2="2"
+
+						if int(v1) <= 0 or int(v2) <= 0:
+							print "Linha não considerada pois possui vértice nulo ou negativo"
+							continue
+
+						#checando se os vértices possuem identificador superior ao máximo permitido
+						elif int(v1) > self.qtd_vertices or int(v2) > self.qtd_vertices:
+							print "Linha não considerada pois referencia vértices que ultrapassam a quantidade indicada"
+							continue
+
+						else:
+							self.grafo_matriz[int(v1)-1][int(v2)-1]=1 #ex: para i="1 2", o "1" representará o índice 0 e o "2" representará o índice 1, logo, uma aresta(0,1)
+							self.grafo_matriz[int(v2)-1][int(v1)-1]=1
+
 				self.matrix_view=True #variável que me informará que o formato matriz foi criado com sucesso
 			else:
 				self.matrix_view=False
@@ -259,6 +283,8 @@ mediana de grau: %s\
 		texto_output+='\n\nAs camadas de cada vértice são:\n%s'%(str(camadas)[1:-1])
 		self.output.write(texto_output)
 
+		return caminho, arvore_bfs, camadas
+
 	def gerar_arvore_da_dfs(self,vertice_inicial): #DFS(busca em profundida)
 		u'''Algoritmo:
 		1.Desmarcar todos os vérticecs -- O(n)
@@ -304,6 +330,34 @@ mediana de grau: %s\
 		texto_output+='\n\nAs camadas de cada vértice são:\n%s'%(str(camadas)[1:-1])
 		self.output.write(texto_output)
 
+		return caminho, arvore_dfs, camadas
+
+	def pai(self,vertice_inicial,vertice_desejado,modelo_arvore="BFS"):
+
+		if modelo_arvore == "BFS":
+			pais = self.gerar_arvore_da_bfs(vertice_inicial)[1]
+			print pais[vertice_desejado-1]
+
+		elif modelo_arvore == "DFS":
+			pais = self.gerar_arvore_da_dfs(vertice_inicial)[1]
+			print pais[vertice_desejado-1]
+
+		else:
+			print "Escolha uma árvore de busca válida"
+
+	def nivel(self,vertice_inicial,vertice_desejado,modelo_arvore="BFS"):
+
+		if modelo_arvore == "BFS":
+			niveis = self.gerar_arvore_da_bfs(vertice_inicial)[2]
+			print niveis[vertice_desejado-1]
+
+		elif modelo_arvore == "DFS":
+			niveis = self.gerar_arvore_da_dfs(vertice_inicial)[2]
+			print niveis[vertice_desejado-1]
+
+		else:
+			print "Escolha uma árvore de busca válida"
+
 
 start = time.time()
 #grafo=Grafo(entrada_txt='teste.txt',formato_lista=True,formato_matriz=False)
@@ -313,8 +367,11 @@ grafo=Grafo(entrada_txt='as_graph.txt',formato_lista=True,formato_matriz=False)
 end = time.time()
 print(end-start)
 
-start = time.time()
-grafo.imprimir_propriedades()
-grafo.gerar_arvore_da_bfs(1)
-end = time.time()
-print(end-start)
+#start = time.time()
+#grafo.imprimir_propriedades()
+#grafo.gerar_arvore_da_dfs(1)
+#end = time.time()
+#print(end-start)
+
+grafo.pai(1,543)
+grafo.nivel(2,452)
