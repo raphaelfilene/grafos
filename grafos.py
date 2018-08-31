@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 #Esta biblioteca foi feita para a versão 2.7 do Python, não sendo compatível com as versões 3.x do mesmo.
 
+import time
+
 class Grafo:
 	nome_output='output.txt'
 	def __init__(self,entrada_txt=False,formato_lista=False,formato_matriz=False):
@@ -198,25 +200,31 @@ mediana de grau: %s\
 		'''
 		indice_inicial=vertice_inicial-1
 
-		desmarcados=[1]*self.qtd_vertices #1=desmarcado 0=marcado
-		desmarcados[indice_inicial]=0
+		marcados = set()
+		marcados.add(indice_inicial)
+
 		descobertos=[indice_inicial]
 		caminho=[]
 		arvore_bfs=[-1]*self.qtd_vertices #-1=sem pai; i=index do vértice do pai
 		camadas=[-1]*self.qtd_vertices #-1 significa que a camada daquele vértice ainda não foi analisada.
 		camadas[indice_inicial]=0
 		camada_atual=0
-		while len(descobertos)!=0:
+
+		indice_descobertos = 0
+
+		while(len(descobertos) > indice_descobertos):
+
 			camada_atual+=1
-			v_descoberto = descobertos[0]
+			v_descoberto = descobertos[indice_descobertos]
 			for v_vizinho in self.ver_vizinhos(v_descoberto):
-				if desmarcados[v_vizinho]:
-					desmarcados[v_vizinho]=0
+				if v_vizinho not in marcados:
+					marcados.add(v_vizinho)
 					descobertos.append(v_vizinho)
 					arvore_bfs[v_vizinho]=v_descoberto+1
 					camadas[v_vizinho]=camada_atual
-			caminho.append(descobertos[0]+1)
-			del descobertos[0]
+			caminho.append(descobertos[indice_descobertos]+1)
+			indice_descobertos += 1
+
 		texto_output='\n\nTomando o vértice "%s" como ponto de partida, o caminho percorrido pelo algoritmo da BFS foi:\n%s'%(vertice_inicial,str(caminho)[1:-1])
 		texto_output+='\n\nOs pais de cada vértice são:\n%s'%(str(arvore_bfs)[1:-1])
 		texto_output+='\n\nAs camadas de cada vértice são:\n%s'%(str(camadas)[1:-1])
@@ -267,7 +275,16 @@ mediana de grau: %s\
 		texto_output+='\n\nAs camadas de cada vértice são:\n%s'%(str(camadas)[1:-1])
 		self.output.write(texto_output)
 
+
+start = time.time()
 #grafo=Grafo(entrada_txt='teste.txt',formato_lista=True,formato_matriz=False)
 grafo=Grafo(entrada_txt='as_graph.txt',formato_lista=True,formato_matriz=False)
+#grafo=Grafo(entrada_txt='dblp.txt',formato_lista=True,formato_matriz=False)
+end = time.time()
+print(end-start)
+
+start = time.time()
 grafo.imprimir_propriedades()
-grafo.gerar_arvore_da_dfs(1)
+grafo.gerar_arvore_da_bfs(1)
+end = time.time()
+print(end-start)
