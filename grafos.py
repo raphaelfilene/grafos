@@ -39,26 +39,55 @@ class Grafo:
 		u'''Se "formato_lista==True", então será criada uma lista a partir de um grafo oriundo de um arquivo txt'''
 		if formato_lista:
 			self.grafo_lista=[[] for i in xrange(self.qtd_vertices)]
-			for i in self.lista_geral[1:]: #ex: i="1 2"
-				v1,espaco,v2=i.partition(' ') #ex: v1="1", espaco=" ", v2="2"
-				
-				#adicionando a aresta(v1,v2) na lista de arestas de v1:
-				lista1=self.grafo_lista[int(v1)-1]
-				valor1=int(v2)-1
-				if len(lista1)>0:
-					indice1=self.indice_pra_insercao_binaria(lista1,valor1,0,len(lista1)-1)
-				else:
-					indice1=0
-				lista1.insert(indice1,valor1)
 
-				#adicionando a aresta(v1,v2) na lista de arestas de v2:
-				lista2=self.grafo_lista[int(v2)-1]
-				valor2=int(v1)-1
-				if len(lista2)>0:
-					indice2=self.indice_pra_insercao_binaria(lista2,valor2,0,len(lista2)-1)
+			partition_format = ' '
+
+			try:
+				v1,espaco,v2 = self.lista_geral[1].partition(partition_format)
+				teste = int(v1) #testa se a separação é feita por ' '
+			
+			except:
+
+				try:
+					self.lista_geral[1].partition('\t')
+					partition_format = '\t'
+
+				except:
+					pass
+
+			for i in self.lista_geral[1:]: #ex: i="1 2"
+
+				v1,espaco,v2=i.partition(partition_format) #ex: v1="1", espaco=" " ou espaco="\t", v2="2"
+
+				#checando se o vértice é nulo ou negativo
+				if int(v1) <= 0 or int(v2) <= 0:
+					print "Linha não considerada pois possui vértice nulo ou negativo"
+					continue
+
+				#checando se os vértices possuem identificador superior ao máximo permitido
+				elif int(v1) > self.qtd_vertices or int(v2) > self.qtd_vertices:
+					continue
+					print "Linha não considerada pois referencia vértices que ultrapassam a quantidade indicada"
+
 				else:
-					indice2=0
-				lista2.insert(indice2,valor2)
+
+					#adicionando a aresta(v1,v2) na lista de arestas de v1:
+					lista1=self.grafo_lista[int(v1)-1]
+					valor1=int(v2)-1
+					if len(lista1)>0:
+						indice1=self.indice_pra_insercao_binaria(lista1,valor1,0,len(lista1)-1)
+					else:
+						indice1=0
+					lista1.insert(indice1,valor1)
+
+					#adicionando a aresta(v1,v2) na lista de arestas de v2:
+					lista2=self.grafo_lista[int(v2)-1]
+					valor2=int(v1)-1
+					if len(lista2)>0:
+						indice2=self.indice_pra_insercao_binaria(lista2,valor2,0,len(lista2)-1)
+					else:
+						indice2=0
+					lista2.insert(indice2,valor2)
 				
 			self.list_view=True #variável que me informará que o formato lista foi criado com sucesso
 		else:
@@ -261,7 +290,7 @@ mediana de grau: %s\
 				marcados.add(v_descoberto)
 				camada_atual += 1
 
-				for v_vizinho in self.grafo_lista[v_descoberto]:
+				for v_vizinho in self.ver_vizinhos(v_descoberto):
 
 					if v_vizinho not in marcados:
 						P.append(v_vizinho)
@@ -280,6 +309,7 @@ start = time.time()
 #grafo=Grafo(entrada_txt='teste.txt',formato_lista=True,formato_matriz=False)
 grafo=Grafo(entrada_txt='as_graph.txt',formato_lista=True,formato_matriz=False)
 #grafo=Grafo(entrada_txt='dblp.txt',formato_lista=True,formato_matriz=False)
+#grafo=Grafo(entrada_txt='live_journal.txt',formato_lista=True,formato_matriz=False)
 end = time.time()
 print(end-start)
 
