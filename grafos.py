@@ -323,10 +323,10 @@ mediana de grau: %s\
 
 				caminho.append(v_descoberto+1)
 
-		texto_output='\n\nTomando o vértice "%s" como ponto de partida, o caminho percorrido pelo algoritmo da DFS foi:\n%s'%(vertice_inicial,str(caminho)[1:-1])
-		texto_output+='\n\nOs pais de cada vértice são:\n%s'%(str(arvore_dfs)[1:-1])
-		texto_output+='\n\nAs camadas de cada vértice são:\n%s'%(str(camadas)[1:-1])
-		self.output.write(texto_output)
+		#texto_output='\n\nTomando o vértice "%s" como ponto de partida, o caminho percorrido pelo algoritmo da DFS foi:\n%s'%(vertice_inicial,str(caminho)[1:-1])
+		#texto_output+='\n\nOs pais de cada vértice são:\n%s'%(str(arvore_dfs)[1:-1])
+		#texto_output+='\n\nAs camadas de cada vértice são:\n%s'%(str(camadas)[1:-1])
+		#self.output.write(texto_output)
 
 		return caminho, arvore_dfs, camadas
 
@@ -356,17 +356,68 @@ mediana de grau: %s\
 		else:
 			print "Escolha uma árvore de busca válida"
 
+	def componentes_conexas(self):
+
+		vertices_conexos = set()
+		num_cc = 0
+		lista_cc = []
+		tamanho_maior_cc = 0
+		tamanho_menor_cc = self.qtd_vertices
+
+		index = 0
+
+		for i in self.grafo_lista:
+
+			if i == []:
+
+				tamanho_menor_cc = 1
+				num_cc += 1
+				vertices_conexos.add(index+1)
+
+			else:
+				for vertice in i:
+
+					indice = vertice+1
+
+					if indice not in vertices_conexos:
+
+						cc = self.gerar_arvore_da_dfs(indice)[0]
+						lista_cc.append(cc)
+						num_cc += 1
+
+						for elemento in cc:
+							vertices_conexos.add(elemento)
+
+			index += 1
+
+		for cc in lista_cc:
+
+			if len(cc) > tamanho_maior_cc:
+				tamanho_maior_cc = len(cc)
+
+			if len(cc) < tamanho_menor_cc:
+				tamanho_menor_cc = len(cc)
+
+		print "O número de componentes conexas deste grafo é igual a:", num_cc
+		print "A maior componente conexa tem tamanho:", tamanho_maior_cc
+		print "A menor componente conexa tem tamanho:", tamanho_menor_cc
 
 start = time.time()
-#grafo=Grafo(entrada_txt='teste.txt',formato_lista=True,formato_matriz=False)
-grafo=Grafo(entrada_txt='as_graph.txt',formato_lista=True,formato_matriz=False)
+grafo=Grafo(entrada_txt='teste.txt',formato_lista=True,formato_matriz=False)
+#grafo=Grafo(entrada_txt='as_graph.txt',formato_lista=True,formato_matriz=False)
 #grafo=Grafo(entrada_txt='dblp.txt',formato_lista=True,formato_matriz=False)
 #grafo=Grafo(entrada_txt='live_journal.txt',formato_lista=True,formato_matriz=False)
 end = time.time()
 print(end-start)
 
+#start = time.time()
+#grafo.imprimir_propriedades()
+#grafo.gerar_arvore_da_bfs(1)
+#end = time.time()
+#print(end-start)
+
 start = time.time()
-grafo.imprimir_propriedades()
-grafo.gerar_arvore_da_bfs(1)
+grafo.componentes_conexas()
+#grafo.gerar_arvore_da_dfs(2)
 end = time.time()
 print(end-start)
