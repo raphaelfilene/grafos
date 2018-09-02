@@ -2,6 +2,7 @@
 #Esta biblioteca foi feita para a versão 2.7 do Python, não sendo compatível com as versões 3.x do mesmo.
 
 import time
+import psutil
 
 class Grafo:
 	nome_output='output.txt'
@@ -90,6 +91,9 @@ class Grafo:
 					lista2.insert(indice2,valor2)
 				
 			self.list_view=True #variável que me informará que o formato lista foi criado com sucesso
+
+			#print psutil.virtual_memory() //Usado para cálculo de consumo de memória
+
 		else:
 			self.list_view=False
 
@@ -153,6 +157,9 @@ class Grafo:
 							self.grafo_matriz[int(v2)-1][int(v1)-1]=1
 
 				self.matrix_view=True #variável que me informará que o formato matriz foi criado com sucesso
+
+				#print psutil.virtual_memory() //Usado para cálculo de consumo de memória
+
 			else:
 				self.matrix_view=False
 		else:
@@ -170,7 +177,7 @@ class Grafo:
 						qtd=qtd+1
 		else:
 			return False
-		self.qtd_arestas=qtd
+		self.qtd_arestas=qtd/2
 		return True
 
 	def criar_lista_de_graus(self):
@@ -203,7 +210,7 @@ class Grafo:
 				return self.indice_pra_insercao_binaria(lista_ordenada,alvo,inicio,meio-1)
 			return meio+1
 
-	def imprimir_propriedades(self):
+	def imprimir_propriedades(self,componentes_conexas=False):
 		self.output.write('número de vértices: %s\n'%self.qtd_vertices)
 		if self.calcular_numero_arestas():
 			self.output.write('número de arestas: %s\n'%self.qtd_arestas)
@@ -225,6 +232,15 @@ grau médio: %s
 mediana de grau: %s\
 '''%(grau_min,grau_max,grau_medio,mediana_graus))
 
+		if componentes_conexas == True:
+			cc = self.componentes_conexas()
+
+			self.output.write('''\
+\nO número de componentes conexas deste grafo é igual a: %s
+A maior componente conexa tem tamanho: %s
+A menor componente conexa tem tamanho: %s\
+				'''%(cc[0],cc[1],cc[2]))
+
 	def ver_vizinhos(self,indice_vertice):
 		u'''Esta função retornará os vizinhos de um determinado vértice, seja o grafo uma lista ou seja ele uma matriz.'''
 		if self.list_view:
@@ -233,7 +249,7 @@ mediana de grau: %s\
 			return [i for i,v in enumerate(self.grafo_matriz[indice_vertice]) if v==1]
 		return []
 
-	def gerar_arvore_da_bfs(self,vertice_inicial): #BFS(busca em largura)
+	def gerar_arvore_da_bfs(self,vertice_inicial,output=True): #BFS(busca em largura)
 		u'''Algoritmo:
 		1.Desmarcar todos os vértices
 		2.Definir fila "descobertos" inicialmente como vazia
@@ -276,14 +292,15 @@ mediana de grau: %s\
 			caminho.append(descobertos[indice_descobertos]+1)
 			indice_descobertos += 1
 
-		texto_output='\n\nTomando o vértice "%s" como ponto de partida, o caminho percorrido pelo algoritmo da BFS foi:\n%s'%(vertice_inicial,str(caminho)[1:-1])
-		texto_output+='\n\nOs pais de cada vértice são:\n%s'%(str(arvore_bfs)[1:-1])
-		texto_output+='\n\nAs camadas de cada vértice são:\n%s'%(str(camadas)[1:-1])
-		self.output.write(texto_output)
+		if output == True:
+			texto_output='\n\nTomando o vértice "%s" como ponto de partida, o caminho percorrido pelo algoritmo da BFS foi:\n%s'%(vertice_inicial,str(caminho)[1:-1])
+			texto_output+='\n\nOs pais de cada vértice são:\n%s'%(str(arvore_bfs)[1:-1])
+			texto_output+='\n\nAs camadas de cada vértice são:\n%s'%(str(camadas)[1:-1])
+			self.output.write(texto_output)
 
 		return caminho, arvore_bfs, camadas
 
-	def gerar_arvore_da_dfs(self,vertice_inicial): #DFS(busca em profundida)
+	def gerar_arvore_da_dfs(self,vertice_inicial,output=True): #DFS(busca em profundida)
 		u'''Algoritmo:
 		1.Desmarcar todos os vérticecs -- O(n)
 		2.Definir pilha P com um elemento s
@@ -323,10 +340,11 @@ mediana de grau: %s\
 
 				caminho.append(v_descoberto+1)
 
-		#texto_output='\n\nTomando o vértice "%s" como ponto de partida, o caminho percorrido pelo algoritmo da DFS foi:\n%s'%(vertice_inicial,str(caminho)[1:-1])
-		#texto_output+='\n\nOs pais de cada vértice são:\n%s'%(str(arvore_dfs)[1:-1])
-		#texto_output+='\n\nAs camadas de cada vértice são:\n%s'%(str(camadas)[1:-1])
-		#self.output.write(texto_output)
+		if output == True:
+			texto_output='\n\nTomando o vértice "%s" como ponto de partida, o caminho percorrido pelo algoritmo da DFS foi:\n%s'%(vertice_inicial,str(caminho)[1:-1])
+			texto_output+='\n\nOs pais de cada vértice são:\n%s'%(str(arvore_dfs)[1:-1])
+			texto_output+='\n\nAs camadas de cada vértice são:\n%s'%(str(camadas)[1:-1])
+			self.output.write(texto_output)
 
 		return caminho, arvore_dfs, camadas
 
@@ -334,11 +352,11 @@ mediana de grau: %s\
 
 		if modelo_arvore == "BFS":
 			pais = self.gerar_arvore_da_bfs(vertice_inicial)[1]
-			print pais[vertice_desejado-1]
+			return pais[vertice_desejado-1]
 
 		elif modelo_arvore == "DFS":
 			pais = self.gerar_arvore_da_dfs(vertice_inicial)[1]
-			print pais[vertice_desejado-1]
+			return pais[vertice_desejado-1]
 
 		else:
 			print "Escolha uma árvore de busca válida"
@@ -347,11 +365,11 @@ mediana de grau: %s\
 
 		if modelo_arvore == "BFS":
 			niveis = self.gerar_arvore_da_bfs(vertice_inicial)[2]
-			print niveis[vertice_desejado-1]
+			return niveis[vertice_desejado-1]
 
 		elif modelo_arvore == "DFS":
 			niveis = self.gerar_arvore_da_dfs(vertice_inicial)[2]
-			print niveis[vertice_desejado-1]
+			return niveis[vertice_desejado-1]
 
 		else:
 			print "Escolha uma árvore de busca válida"
@@ -366,58 +384,104 @@ mediana de grau: %s\
 
 		index = 0
 
-		for i in self.grafo_lista:
+		if self.list_view:
+			for i in self.grafo_lista:
 
-			if i == []:
+				if i == []:
 
-				tamanho_menor_cc = 1
-				num_cc += 1
-				vertices_conexos.add(index+1)
+					tamanho_menor_cc = 1
+					num_cc += 1
+					vertices_conexos.add(index+1)
 
-			else:
-				for vertice in i:
+				else:
+					for vertice in i:
 
-					indice = vertice+1
+						indice = vertice+1
 
-					if indice not in vertices_conexos:
+						if indice not in vertices_conexos:
 
-						cc = self.gerar_arvore_da_dfs(indice)[0]
-						lista_cc.append(cc)
-						num_cc += 1
+							cc = self.gerar_arvore_da_dfs(indice,output=False)[0]
+							lista_cc.append(cc)
+							num_cc += 1
 
-						for elemento in cc:
-							vertices_conexos.add(elemento)
+							for elemento in cc:
+								vertices_conexos.add(elemento)
 
-			index += 1
+				index += 1
 
-		for cc in lista_cc:
+			for cc in lista_cc:
 
-			if len(cc) > tamanho_maior_cc:
-				tamanho_maior_cc = len(cc)
+				if len(cc) > tamanho_maior_cc:
+					tamanho_maior_cc = len(cc)
 
-			if len(cc) < tamanho_menor_cc:
-				tamanho_menor_cc = len(cc)
+				if tamanho_menor_cc != 1:
+					if len(cc) < tamanho_menor_cc:
+						tamanho_menor_cc = len(cc)
 
-		print "O número de componentes conexas deste grafo é igual a:", num_cc
-		print "A maior componente conexa tem tamanho:", tamanho_maior_cc
-		print "A menor componente conexa tem tamanho:", tamanho_menor_cc
+		return num_cc, tamanho_maior_cc, tamanho_menor_cc
 
-start = time.time()
-grafo=Grafo(entrada_txt='teste.txt',formato_lista=True,formato_matriz=False)
-#grafo=Grafo(entrada_txt='as_graph.txt',formato_lista=True,formato_matriz=False)
-#grafo=Grafo(entrada_txt='dblp.txt',formato_lista=True,formato_matriz=False)
-#grafo=Grafo(entrada_txt='live_journal.txt',formato_lista=True,formato_matriz=False)
-end = time.time()
-print(end-start)
+	def diametro(self):
 
-#start = time.time()
-#grafo.imprimir_propriedades()
-#grafo.gerar_arvore_da_bfs(1)
-#end = time.time()
-#print(end-start)
+		diametro = 0
 
-start = time.time()
-grafo.componentes_conexas()
-#grafo.gerar_arvore_da_dfs(2)
-end = time.time()
-print(end-start)
+		if self.componentes_conexas()[0] != 1:
+			print "O diâmetro é infinito"
+			return
+
+		else:
+			for i in range(self.qtd_vertices):
+				temp_camadas = self.gerar_arvore_da_bfs(i+1,output=False)[2]
+
+				maior_distancia = max(temp_camadas)
+
+				if maior_distancia > diametro:
+					diametro = maior_distancia
+
+		return diametro
+
+if __name__ == "__main__":
+
+	#print psutil.virtual_memory()
+	start = time.time()
+	#grafo=Grafo(entrada_txt='teste.txt',formato_lista=True,formato_matriz=False)
+	grafo=Grafo(entrada_txt='as_graph.txt',formato_lista=False,formato_matriz=True)
+	#grafo=Grafo(entrada_txt='dblp.txt',formato_lista=True,formato_matriz=False)
+	#grafo=Grafo(entrada_txt='live_journal.txt',formato_lista=True,formato_matriz=False)
+	end = time.time()
+	print(end-start)
+
+	#print "BFS"
+
+	#grafo.pai(1,10)
+	#grafo.pai(2,20)
+	#grafo.pai(3,30)
+	#grafo.pai(4,40)
+	#grafo.pai(5,50)
+
+	#print "DFS"
+
+	#grafo.pai(1,10,modelo_arvore="DFS")
+	#grafo.pai(2,20,modelo_arvore="DFS")
+	#grafo.pai(3,30,modelo_arvore="DFS")
+	#grafo.pai(4,40,modelo_arvore="DFS")
+	#grafo.pai(5,50,modelo_arvore="DFS")
+
+	#start = time.time()
+	#grafo.imprimir_propriedades()
+	#end = time.time()
+	#print(end-start)
+
+	#start = time.time()
+	#grafo.componentes_conexas()
+	#end = time.time()
+	#print(end-start)
+
+	#start = time.time()
+	#print grafo.diametro()
+	#end = time.time()
+	#print(end-start)
+
+	start = time.time()
+	grafo.gerar_arvore_da_bfs(1)
+	end = time.time()
+	print(end-start)

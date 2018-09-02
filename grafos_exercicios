@@ -1,0 +1,137 @@
+1)
+Grafo 1:
+Lista de Adjacência: 2777,567232 - 2767,663104 = 9,904128 MB
+svmem(total=16853635072, available=13613707264, percent=19.2, used=2767663104, free=5830471680, active=3932688384, inactive=6567362560, buffers=170348544, cached=8085151744, shared=125829120, slab=294121472)
+svmem(total=16853635072, available=13603856384, percent=19.3, used=2777567232, free=5820567552, active=3942121472, inactive=6567407616, buffers=170348544, cached=8085151744, shared=125829120, slab=294121472)
+
+Matriz de Adjacência:
+
+Grafo 2:
+Lista de Adjacência: 3748,466688 - 2767,417344 = 981,049344 MB
+svmem(total=16853635072, available=13613936640, percent=19.2, used=2767417344, free=5802930176, active=3935473664, inactive=6592471040, buffers=170491904, cached=8112795648, shared=125825024, slab=294236160)
+svmem(total=16853635072, available=12633112576, percent=25.0, used=3748466688, free=4710928384, active=4917633024, inactive=6699499520, buffers=170500096, cached=8223739904, shared=125792256, slab=294318080)
+
+Matriz de Adjacência: Valor teórico -> 7450260,87856 MB
+
+Grafo 3:
+Lista de Adjacência: 8250,257408 - 2794,889216 = 5455,368192 MB
+svmem(total=16853635072, available=13586583552, percent=19.4, used=2794889216, free=5592760320, active=3965997056, inactive=6770663424, buffers=170569728, cached=8295415808, shared=125779968, slab=294305792)
+svmem(total=16853635072, available=8127049728, percent=51.8, used=8250257408, free=452689920, active=9403330560, inactive=6462296064, buffers=170803200, cached=7979884544, shared=129945600, slab=294084608)
+
+Matriz de Adjacência: Valor teórico -> 60973053,52211 MB
+
+2)
+Grafo 1:
+Lista: 0.0505770611763s
+Matriz:
+
+Grafo 2:
+Lista: 4.445259583s
+Matriz: Sem memória suficiente
+
+Grafo 3:
+Lista: 25.9300521698s
+Matriz: Sem memória suficiente
+
+3)
+Grafo 1:
+Lista: 0.0614306356907s
+Matriz:
+
+Grafo 2:
+Lista: 7.264880122s
+Matriz: Sem memória suficiente
+
+Grafo 3:
+Lista: 48.6516801233s
+Matriz: Sem memória suficiente
+
+4)
+Grafo 1:
+BFS
+Vértice 10, Vértice Inicial 1: 1
+Vértice 20, Vértice Inicial 2: 5
+Vértice 30, Vértice Inicial 3: 1
+Vértice 40, Vértice Inicial 4: 2426
+Vértice 50, Vértice Inicial 5: 5
+
+DFS
+Vértice 10, Vértice Inicial 1: 11550
+Vértice 20, Vértice Inicial 2: 1
+Vértice 30, Vértice Inicial 3: 11274
+Vértice 40, Vértice Inicial 4: 10291
+Vértice 50, Vértice Inicial 5: 3096
+
+Grafo 2:
+BFS
+Vértice 10, Vértice Inicial 1: 1226753
+Vértice 20, Vértice Inicial 2: 843078
+Vértice 30, Vértice Inicial 3: -1
+Vértice 40, Vértice Inicial 4: -1
+Vértice 50, Vértice Inicial 5: -1
+DFS
+Vértice 10, Vértice Inicial 1: 309053
+Vértice 20, Vértice Inicial 2: 762595
+Vértice 30, Vértice Inicial 3: -1
+Vértice 40, Vértice Inicial 4: -1
+Vértice 50, Vértice Inicial 5: -1
+
+Grafo 3:
+BFS
+Vértice 10, Vértice Inicial 1: 1
+Vértice 20, Vértice Inicial 2: 1
+Vértice 30, Vértice Inicial 3: 1
+Vértice 40, Vértice Inicial 4: 1
+Vértice 50, Vértice Inicial 5: 1
+DFS
+Vértice 10, Vértice Inicial 1: 1667083
+Vértice 20, Vértice Inicial 2: 3960616
+Vértice 30, Vértice Inicial 3: 2669827
+Vértice 40, Vértice Inicial 4: 2457117
+Vértice 50, Vértice Inicial 5: 3996997
+
+5)
+Grafo 1:
+O número de componentes conexas deste grafo é igual a: 1
+A maior componente conexa tem tamanho: 32385
+A menor componente conexa tem tamanho: 32385
+Tempo de execução: 0.0755391120911s
+
+Grafo 2:
+O número de componentes conexas deste grafo é igual a: 116442
+A maior componente conexa tem tamanho: 1183247
+A menor componente conexa tem tamanho: 1
+Tempo de execução: 951.625077963s
+
+Grafo 3:
+O número de componentes conexas deste grafo é igual a: 29221
+A maior componente conexa tem tamanho: 3968729
+A menor componente conexa tem tamanho: 1
+Tempo de execução: 63.7551078796
+
+6)
+Grafo 1:
+Grau mínimo: 1
+Grau máximo: 2161
+Grau médio: 2.89164736761
+Mediana: 1
+
+Grafo 2:
+Grau mínimo: 0
+Grau máximo: 1638
+Grau médio: 7.80075276742
+Mediana: 4.0
+
+Grafo 3:
+Grau mínimo: 0
+Grau máximo: 14762
+Grau médio: 17.3159664849
+Mediana: 6.0
+
+7)
+Grafo 1:
+Diâmetro: 11
+Tempo: 1409.10763097s
+
+Grafo 2: Complexidade quadrática - não é calculável
+Grafo 3: Complexidade quadrática - não é calculável
