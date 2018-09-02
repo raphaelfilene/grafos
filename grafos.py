@@ -2,7 +2,7 @@
 #Esta biblioteca foi feita para a versão 2.7 do Python, não sendo compatível com as versões 3.x do mesmo.
 
 import time
-import psutil
+#import psutil
 
 class Grafo:
 	nome_output='output.txt'
@@ -375,69 +375,28 @@ A menor componente conexa tem tamanho: %s\
 			print "Escolha uma árvore de busca válida"
 
 	def componentes_conexas(self):
-
 		vertices_conexos = set()
-		num_cc = 0
-		lista_cc = []
-		tamanho_maior_cc = 0
-		tamanho_menor_cc = self.qtd_vertices
+		num_cc=0
+		lista_cc=[]
+		tamanho_maior_cc=0
+		tamanho_menor_cc=self.qtd_vertices
 
-		if self.matrix_view:
-
-			for i in range(1,self.qtd_vertices+1):
-
-				if i not in vertices_conexos:
-					a = self.ver_vizinhos(i-1)
-
-					if a == []:
-
-						tamanho_menor_cc = 1
-						num_cc += 1
-						vertices_conexos.add(i)
-						lista_cc.append([i])
-
-					else:
-						for vertice in a:
-
-							indice = vertice+1
-
-							if indice not in vertices_conexos:
-
-								cc = self.gerar_arvore_da_dfs(indice,output=False)[0]
-								lista_cc.append(cc)
-								num_cc += 1
-
-								for elemento in cc:
-									vertices_conexos.add(elemento)
-
-		elif self.list_view:
-
-			index = 0
-
-			for i in self.grafo_lista:
-
-				if i == []:
-
-					tamanho_menor_cc = 1
-					num_cc += 1
-					vertices_conexos.add(index+1)
-					lista_cc.append([index+1])
-
-				else:
-					for vertice in i:
-
-						indice = vertice+1
-
-						if indice not in vertices_conexos:
-
-							cc = self.gerar_arvore_da_dfs(indice,output=False)[0]
-							lista_cc.append(cc)
-							num_cc += 1
-
-							for elemento in cc:
-								vertices_conexos.add(elemento)
-
-				index += 1
+		for i in xrange(self.qtd_vertices):
+			vizinhos=self.ver_vizinhos(i-1)
+			if len(vizinhos):
+				for indice in vizinhos:
+					vertice=indice+1
+					if vertice not in vertices_conexos:
+						cc=self.gerar_arvore_da_dfs(vertice,output=False)[0]
+						lista_cc.append(cc)
+						num_cc+=1
+						for elemento in cc:
+							vertices_conexos.add(elemento)
+			else:
+				tamanho_menor_cc=1
+				num_cc+=1
+				vertices_conexos.add(i+1)
+				lista_cc.append([i+1])
 
 		if lista_cc != []:
 			for cc in lista_cc:
@@ -464,7 +423,7 @@ A menor componente conexa tem tamanho: %s\
 			return
 
 		else:
-			for i in range(self.qtd_vertices):
+			for i in xrange(self.qtd_vertices):
 				temp_camadas = self.gerar_arvore_da_bfs(i+1,output=False)[2]
 
 				maior_distancia = max(temp_camadas)
