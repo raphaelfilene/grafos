@@ -382,9 +382,38 @@ A menor componente conexa tem tamanho: %s\
 		tamanho_maior_cc = 0
 		tamanho_menor_cc = self.qtd_vertices
 
-		index = 0
+		if self.matrix_view:
 
-		if self.list_view:
+			for i in range(1,self.qtd_vertices+1):
+
+				if i not in vertices_conexos:
+					a = self.ver_vizinhos(i-1)
+
+					if a == []:
+
+						tamanho_menor_cc = 1
+						num_cc += 1
+						vertices_conexos.add(i)
+						lista_cc.append([i])
+
+					else:
+						for vertice in a:
+
+							indice = vertice+1
+
+							if indice not in vertices_conexos:
+
+								cc = self.gerar_arvore_da_dfs(indice,output=False)[0]
+								lista_cc.append(cc)
+								num_cc += 1
+
+								for elemento in cc:
+									vertices_conexos.add(elemento)
+
+		elif self.list_view:
+
+			index = 0
+
 			for i in self.grafo_lista:
 
 				if i == []:
@@ -392,6 +421,7 @@ A menor componente conexa tem tamanho: %s\
 					tamanho_menor_cc = 1
 					num_cc += 1
 					vertices_conexos.add(index+1)
+					lista_cc.append([index+1])
 
 				else:
 					for vertice in i:
@@ -409,6 +439,7 @@ A menor componente conexa tem tamanho: %s\
 
 				index += 1
 
+		if lista_cc != []:
 			for cc in lista_cc:
 
 				if len(cc) > tamanho_maior_cc:
@@ -418,7 +449,11 @@ A menor componente conexa tem tamanho: %s\
 					if len(cc) < tamanho_menor_cc:
 						tamanho_menor_cc = len(cc)
 
-		return num_cc, tamanho_maior_cc, tamanho_menor_cc
+		else:
+			print "Favor implementar o grafo em algum formato (matriz ou lista) antes de calcular as componentes conexas"
+			return
+
+		return num_cc, tamanho_maior_cc, tamanho_menor_cc, lista_cc
 
 	def diametro(self):
 
@@ -443,8 +478,8 @@ if __name__ == "__main__":
 
 	#print psutil.virtual_memory()
 	start = time.time()
-	#grafo=Grafo(entrada_txt='teste.txt',formato_lista=True,formato_matriz=False)
-	grafo=Grafo(entrada_txt='as_graph.txt',formato_lista=False,formato_matriz=True)
+	grafo=Grafo(entrada_txt='teste.txt',formato_lista=True,formato_matriz=False)
+	#grafo=Grafo(entrada_txt='as_graph.txt',formato_lista=False,formato_matriz=True)
 	#grafo=Grafo(entrada_txt='dblp.txt',formato_lista=True,formato_matriz=False)
 	#grafo=Grafo(entrada_txt='live_journal.txt',formato_lista=True,formato_matriz=False)
 	end = time.time()
@@ -472,7 +507,7 @@ if __name__ == "__main__":
 	#print(end-start)
 
 	#start = time.time()
-	#grafo.componentes_conexas()
+	print grafo.componentes_conexas()
 	#end = time.time()
 	#print(end-start)
 
@@ -481,7 +516,7 @@ if __name__ == "__main__":
 	#end = time.time()
 	#print(end-start)
 
-	start = time.time()
-	grafo.gerar_arvore_da_bfs(1)
-	end = time.time()
-	print(end-start)
+	#start = time.time()
+	#grafo.gerar_arvore_da_dfs(1)
+	#end = time.time()
+	#print(end-start)

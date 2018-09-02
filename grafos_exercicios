@@ -23,7 +23,7 @@ Matriz de Adjacência: Valor teórico -> 60973053,52211 MB
 2)
 Grafo 1:
 Lista: 0.0505770611763s
-Matriz:
+Matriz: 47.3032607698s
 
 Grafo 2:
 Lista: 4.445259583s
@@ -36,7 +36,7 @@ Matriz: Sem memória suficiente
 3)
 Grafo 1:
 Lista: 0.0614306356907s
-Matriz:
+Matriz: 46.7324808741s
 
 Grafo 2:
 Lista: 7.264880122s
