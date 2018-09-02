@@ -200,7 +200,7 @@ class Grafo:
 	def indice_pra_insercao_binaria(self,lista_ordenada,alvo,inicio,fim):
 		u'''É um método para inserção binária de elementos. Criei esse método para que, quando eu for utilizar a visualização dos grafos por listas, para cada vértice vi, seus adjacentes vj estejam ordenados, de modo a otimizar futuras operações com esta lista.'''
 		if fim<=inicio:
-			return fim+1 if alvo>lista_ordenada[fim] else fim
+			return inicio+1 if alvo>lista_ordenada[fim] else inicio
 		meio=int((inicio+fim)/2)
 		encontrada=lista_ordenada[meio]
 		if alvo>encontrada:
@@ -378,6 +378,7 @@ A menor componente conexa tem tamanho: %s\
 		vertices_conexos = set()
 		num_cc=0
 		lista_cc=[]
+		lista_tamanhos_cc=[]
 		tamanho_maior_cc=0
 		tamanho_menor_cc=self.qtd_vertices
 
@@ -388,7 +389,12 @@ A menor componente conexa tem tamanho: %s\
 					vertice=indice+1
 					if vertice not in vertices_conexos:
 						cc=self.gerar_arvore_da_dfs(vertice,output=False)[0]
-						lista_cc.append(cc)
+						if len(lista_tamanhos_cc):
+							indice_ordenacao=self.indice_pra_insercao_binaria(lista_tamanhos_cc,len(cc),0,len(lista_tamanhos_cc)-1)
+						else:
+							indice_ordenacao=0
+						lista_cc.insert(len(lista_tamanhos_cc)-indice_ordenacao,cc)
+						lista_tamanhos_cc.insert(indice_ordenacao,len(cc))
 						num_cc+=1
 						for elemento in cc:
 							vertices_conexos.add(elemento)
@@ -397,7 +403,6 @@ A menor componente conexa tem tamanho: %s\
 				num_cc+=1
 				vertices_conexos.add(i+1)
 				lista_cc.append([i+1])
-
 		if lista_cc != []:
 			for cc in lista_cc:
 
