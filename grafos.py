@@ -2,7 +2,7 @@
 #Esta biblioteca foi feita para a versão 2.7 do Python, não sendo compatível com as versões 3.x do mesmo.
 
 import time
-#import psutil
+import psutil
 
 class Grafo:
 	nome_output='output.txt'
@@ -274,7 +274,8 @@ A menor componente conexa tem tamanho: %s\
 
 		descobertos=[indice_inicial]
 		caminho=[]
-		arvore_bfs=[-1]*self.qtd_vertices #-1=sem pai; i=index do vértice do pai
+		arvore_bfs=[-2]*self.qtd_vertices #-2=não foi analisado; -1=sem pai; i=index do vértice do pai
+		arvore_bfs[indice_inicial]=-1
 		camadas=[-1]*self.qtd_vertices #-1 significa que a camada daquele vértice ainda não foi analisada.
 		camadas[indice_inicial]=0
 		camada_atual=0
@@ -315,11 +316,12 @@ A menor componente conexa tem tamanho: %s\
 		'''
 		indice_inicial = vertice_inicial-1
 
-		marcados = set() 
-		P = [indice_inicial]
-		caminho = []
-		arvore_dfs = [-1]*self.qtd_vertices
-		camadas = [-1]*self.qtd_vertices
+		marcados=set() 
+		P=[indice_inicial]
+		caminho=[]
+		arvore_dfs=[-2]*self.qtd_vertices
+		arvore_dfs[indice_inicial]=-1
+		camadas=[-1]*self.qtd_vertices
 		camadas[indice_inicial] = 0
 		camada_atual = 0
 
