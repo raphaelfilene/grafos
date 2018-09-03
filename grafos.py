@@ -384,27 +384,38 @@ A menor componente conexa tem tamanho: %s\
 		tamanho_maior_cc=0
 		tamanho_menor_cc=self.qtd_vertices
 
+		#Examina cada vértice do grafo
 		for i in xrange(self.qtd_vertices):
 			vizinhos=self.ver_vizinhos(i-1)
+			#Examina se o grau do vértice é maior que 0
 			if len(vizinhos):
+				#Examina cada vizinho do vértice escolhido
 				for indice in vizinhos:
 					vertice=indice+1
+					#Caso o vizinho não seja parte de nenhuma componente conexa, é feita uma dfs partindo dele
 					if vertice not in vertices_conexos:
 						cc=self.gerar_arvore_da_dfs(vertice,output=False)[0]
+						#Determina a posição da componente conexa criada na lista de componentes conexas, em ordem decrescente por número de vértices
 						if len(lista_tamanhos_cc):
 							indice_ordenacao=self.indice_pra_insercao_binaria(lista_tamanhos_cc,len(cc),0,len(lista_tamanhos_cc)-1)
 						else:
 							indice_ordenacao=0
+						#Insere a componente conexa na lista de componentes conexas 
 						lista_cc.insert(len(lista_tamanhos_cc)-indice_ordenacao,cc)
 						lista_tamanhos_cc.insert(indice_ordenacao,len(cc))
 						num_cc+=1
+
+						#Adiciona cada vértice da componente em um set que contém todos os vértices que são parte de alguma componente
 						for elemento in cc:
 							vertices_conexos.add(elemento)
-			else:
+			#Caso o vértice tenha grau 0, ele é adicionado à lista de componentes conexas sem que seja realizada uma dfs
+			else:	
 				tamanho_menor_cc=1
 				num_cc+=1
-				vertices_conexos.add(i+1)
-				lista_cc.append([i+1])
+				vertices_conexos.add(i)
+				lista_cc.append([i])
+		
+		#Examina o tamanho de cada elemento na lista de componentes conexas, caso esta não seja vazia, e determina o maior e menor valor
 		if lista_cc != []:
 			for cc in lista_cc:
 
@@ -425,16 +436,21 @@ A menor componente conexa tem tamanho: %s\
 
 		diametro = 0
 
+		#Checa se existe algum par de vértices que não esteja conectado; caso exista, o diâmetro é infinito
 		if self.componentes_conexas()[0] != 1:
 			print "O diâmetro é infinito"
 			return
 
 		else:
+
+			#Faz uma bfs para cada vértice do grafo
 			for i in xrange(self.qtd_vertices):
 				temp_camadas = self.gerar_arvore_da_bfs(i+1,output=False)[2]
 
+				#Checa o valor da maior camada, e o atribui como maior menor distância do vértice
 				maior_distancia = max(temp_camadas)
 
+				#Se a maior menor distâcia deste vértice for maior que o diâmtro, este recebe o novo valor
 				if maior_distancia > diametro:
 					diametro = maior_distancia
 
@@ -445,7 +461,7 @@ if __name__ == "__main__":
 	#print psutil.virtual_memory()
 	#start = time.time()
 	#grafo=Grafo(entrada_txt='teste.txt',formato_lista=True,formato_matriz=False)
-	#grafo=Grafo(entrada_txt='as_graph.txt',formato_lista=True,formato_matriz=False)
+	grafo=Grafo(entrada_txt='as_graph.txt',formato_lista=True,formato_matriz=False)
 	#grafo=Grafo(entrada_txt='dblp.txt',formato_lista=True,formato_matriz=False)
 	#grafo=Grafo(entrada_txt='live_journal.txt',formato_lista=True,formato_matriz=False)
 	#end = time.time()
@@ -456,10 +472,10 @@ if __name__ == "__main__":
 	#end = time.time()
 	#print(end-start)
 
-	#start = time.time()
-	#print grafo.componentes_conexas()
-	#end = time.time()
-	#print(end-start)
+	start = time.time()
+	print grafo.componentes_conexas()[2]
+	end = time.time()
+	print(end-start)
 
 	#start = time.time()
 	#print grafo.diametro()
@@ -470,5 +486,3 @@ if __name__ == "__main__":
 	#grafo.gerar_arvore_da_dfs(1)
 	#end = time.time()
 	#print(end-start)
-
-	print ""

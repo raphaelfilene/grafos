@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import time
+import psutil
 from grafos import *
 
 print "Escolha o Estudo de Caso para ser testado:"
@@ -25,6 +26,9 @@ elif caso in [2,3]:
 	else:
 		caso = 0
 
+elif caso == 1:
+	pass
+
 else:
 	print "Insira um Estudo de Caso válido"
 	caso = 0
@@ -33,7 +37,25 @@ else:
 
 if caso == 1:
 
-	print "Verificação feita dentro do módulo principal (grafos.py)"
+	print "\nConsumo de memória do Grafo 1 - Vetor: Comparar os valores de 'used' antes e depois de criar o grafo"
+	print psutil.virtual_memory()
+	grafo1v=Grafo(entrada_txt='as_graph.txt',formato_lista=True,formato_matriz=False)
+	print psutil.virtual_memory()
+
+	print "\nConsumo de memória do Grafo 1 - Matriz: Comparar os valores de 'used' antes e depois de criar o grafo"
+	print psutil.virtual_memory()
+	grafo1m=Grafo(entrada_txt='as_graph.txt',formato_lista=False,formato_matriz=True)
+	print psutil.virtual_memory()
+
+	print "\nConsumo de memória do Grafo 2 - Vetor: Comparar os valores de 'used' antes e depois de criar o grafo"
+	print psutil.virtual_memory()
+	grafo2=Grafo(entrada_txt='dblp.txt',formato_lista=True,formato_matriz=False)
+	print psutil.virtual_memory()
+
+	print "\nConsumo de memória do Grafo 3 - Vetor: Comparar os valores de 'used' antes e depois de criar o grafo"
+	print psutil.virtual_memory()
+	grafo3=Grafo(entrada_txt='live_journal.txt',formato_lista=True,formato_matriz=False)
+	print psutil.virtual_memory()
 
 ##Estudo de Caso 2 - Tempo de Execução (BFS)
 
@@ -253,10 +275,10 @@ elif caso == 6:
 elif caso == 7:
 
 	print "\nGrafo 1:"
-	print "O diâmetro é igual a:", grafo1.componentes_conexas()
+	print "O diâmetro é igual a:", grafo1.diametro()
 
 	print "\nGrafo 2:"
-	print "O diâmetro é igual a:", grafo2.componentes_conexas()
+	print "O diâmetro é igual a:", grafo2.diametro()
 
 	print "\nGrafo 3:"
-	print "O diâmetro é igual a:", grafo3.componentes_conexas()
+	print "O diâmetro é igual a:", grafo3.diametro()
