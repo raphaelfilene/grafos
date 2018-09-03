@@ -4,7 +4,9 @@ Lista de Adjacência: 2777,567232 - 2767,663104 = 9,904128 MB
 svmem(total=16853635072, available=13613707264, percent=19.2, used=2767663104, free=5830471680, active=3932688384, inactive=6567362560, buffers=170348544, cached=8085151744, shared=125829120, slab=294121472)
 svmem(total=16853635072, available=13603856384, percent=19.3, used=2777567232, free=5820567552, active=3942121472, inactive=6567407616, buffers=170348544, cached=8085151744, shared=125829120, slab=294121472)
 
-Matriz de Adjacência:
+Matriz de Adjacência: 12643,26656 - 4122,857472 = 8520,409088 MB
+svmem(total=16853635072, available=12105146368, percent=28.2, used=4122857472, free=6112051200, active=5524430848, inactive=4667752448, buffers=278188032, cached=6340538368, shared=279248896, slab=311115776)
+svmem(total=16853635072, available=3573067776, percent=78.8, used=12643266560, free=171749376, active=13892055040, inactive=2272862208, buffers=271437824, cached=3767181312, shared=294670336, slab=263262208)
 
 Grafo 2:
 Lista de Adjacência: 3748,466688 - 2767,417344 = 981,049344 MB
@@ -56,11 +58,11 @@ Vértice 40, Vértice Inicial 4: 2426
 Vértice 50, Vértice Inicial 5: 5
 
 DFS
-Vértice 10, Vértice Inicial 1: 11550
-Vértice 20, Vértice Inicial 2: 1
+Vértice 10, Vértice Inicial 1: 11380
+Vértice 20, Vértice Inicial 2: 11010
 Vértice 30, Vértice Inicial 3: 11274
 Vértice 40, Vértice Inicial 4: 10291
-Vértice 50, Vértice Inicial 5: 3096
+Vértice 50, Vértice Inicial 5: 690
 
 Grafo 2:
 BFS

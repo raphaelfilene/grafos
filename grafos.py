@@ -92,7 +92,7 @@ class Grafo:
 				
 			self.list_view=True #variável que me informará que o formato lista foi criado com sucesso
 
-			#print psutil.virtual_memory() //Usado para cálculo de consumo de memória
+			#print psutil.virtual_memory() #Usado para cálculo de consumo de memória
 
 		else:
 			self.list_view=False
@@ -158,7 +158,7 @@ class Grafo:
 
 				self.matrix_view=True #variável que me informará que o formato matriz foi criado com sucesso
 
-				#print psutil.virtual_memory() //Usado para cálculo de consumo de memória
+				#print psutil.virtual_memory() #Usado para cálculo de consumo de memória
 
 			else:
 				self.matrix_view=False
@@ -301,7 +301,7 @@ A menor componente conexa tem tamanho: %s\
 
 		return caminho, arvore_bfs, camadas
 
-	def gerar_arvore_da_dfs(self,vertice_inicial,output=True): #DFS(busca em profundida)
+	def gerar_arvore_da_dfs(self,vertice_inicial,output=True): #DFS(busca em profundidade)
 		u'''Algoritmo:
 		1.Desmarcar todos os vérticecs -- O(n)
 		2.Definir pilha P com um elemento s
@@ -443,29 +443,13 @@ A menor componente conexa tem tamanho: %s\
 if __name__ == "__main__":
 
 	#print psutil.virtual_memory()
-	start = time.time()
-	grafo=Grafo(entrada_txt='teste.txt',formato_lista=True,formato_matriz=False)
-	#grafo=Grafo(entrada_txt='as_graph.txt',formato_lista=False,formato_matriz=True)
+	#start = time.time()
+	#grafo=Grafo(entrada_txt='teste.txt',formato_lista=True,formato_matriz=False)
+	#grafo=Grafo(entrada_txt='as_graph.txt',formato_lista=True,formato_matriz=False)
 	#grafo=Grafo(entrada_txt='dblp.txt',formato_lista=True,formato_matriz=False)
 	#grafo=Grafo(entrada_txt='live_journal.txt',formato_lista=True,formato_matriz=False)
-	end = time.time()
-	print(end-start)
-
-	#print "BFS"
-
-	#grafo.pai(1,10)
-	#grafo.pai(2,20)
-	#grafo.pai(3,30)
-	#grafo.pai(4,40)
-	#grafo.pai(5,50)
-
-	#print "DFS"
-
-	#grafo.pai(1,10,modelo_arvore="DFS")
-	#grafo.pai(2,20,modelo_arvore="DFS")
-	#grafo.pai(3,30,modelo_arvore="DFS")
-	#grafo.pai(4,40,modelo_arvore="DFS")
-	#grafo.pai(5,50,modelo_arvore="DFS")
+	#end = time.time()
+	#print(end-start)
 
 	#start = time.time()
 	#grafo.imprimir_propriedades()
@@ -473,7 +457,7 @@ if __name__ == "__main__":
 	#print(end-start)
 
 	#start = time.time()
-	print grafo.componentes_conexas()
+	#print grafo.componentes_conexas()
 	#end = time.time()
 	#print(end-start)
 
@@ -486,3 +470,5 @@ if __name__ == "__main__":
 	#grafo.gerar_arvore_da_dfs(1)
 	#end = time.time()
 	#print(end-start)
+
+	print ""
