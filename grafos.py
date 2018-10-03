@@ -3,6 +3,7 @@
 
 import time
 import psutil
+from heap import *
 
 class Grafo:
 	nome_output='output.txt'
@@ -27,6 +28,7 @@ class Grafo:
 				arquivo=open(entrada_txt,'r').read()
 				self.lista_geral=arquivo.splitlines() #no exemplo: self.lista_geral=["4","1 2","1 3","2 3","2 4"]
 				self.qtd_vertices=int(self.lista_geral[0])
+				self.grafo_com_pesos = False
 				self.criar_lista_grafo_a_partir_de_entrada_txt(formato_lista)
 				self.criar_matriz_grafo_a_partir_de_entrada_txt(formato_matriz)
 			except Exception,e:
@@ -45,13 +47,34 @@ class Grafo:
 
 			try:
 				v1,espaco,v2 = self.lista_geral[1].partition(partition_format)
-				teste = int(v1) #testa se a separação é feita por ' '
+				teste1 = int(v1) #testa se a separação é feita por ' '
+
+				try:
+					v2,espaco,peso = v2.partition(partition_format)
+					teste2 = int(v2)
+					teste3 = float(peso)
+
+					self.grafo_com_pesos = True
+
+				except:
+					pass
 			
 			except:
 
 				try:
-					self.lista_geral[1].partition('\t')
 					partition_format = '\t'
+					v1,espaco,v2 = self.lista_geral[1].partition(partition_format)
+					teste1 = int(v1)
+
+					try:
+						v2,espaco,peso = v2.partition(partition_format)
+						teste2 = int(v2)
+						teste3 = float(peso)
+
+						self.grafo_com_pesos = True
+
+					except:
+						pass
 
 				except:
 					pass
@@ -59,6 +82,9 @@ class Grafo:
 			for i in self.lista_geral[1:]: #ex: i="1 2"
 
 				v1,espaco,v2=i.partition(partition_format) #ex: v1="1", espaco=" " ou espaco="\t", v2="2"
+
+				if self.grafo_com_pesos:
+					v2,espaco,peso = v2.partition(partition_format)
 
 				#checando se o vértice é nulo ou negativo
 				if int(v1) <= 0 or int(v2) <= 0:
@@ -79,7 +105,11 @@ class Grafo:
 						indice1=self.indice_pra_insercao_binaria(lista1,valor1,0,len(lista1)-1)
 					else:
 						indice1=0
-					lista1.insert(indice1,valor1)
+
+					if self.grafo_com_pesos:
+						lista1.insert(indice1,[valor1,float(peso)])
+					else:
+						lista1.insert(indice1,valor1)
 
 					#adicionando a aresta(v1,v2) na lista de arestas de v2:
 					lista2=self.grafo_lista[int(v2)-1]
@@ -88,7 +118,11 @@ class Grafo:
 						indice2=self.indice_pra_insercao_binaria(lista2,valor2,0,len(lista2)-1)
 					else:
 						indice2=0
-					lista2.insert(indice2,valor2)
+					
+					if self.grafo_com_pesos:
+						lista2.insert(indice2,[valor2,float(peso)])
+					else:
+						lista2.insert(indice2,valor2)
 				
 			self.list_view=True #variável que me informará que o formato lista foi criado com sucesso
 
@@ -200,9 +234,18 @@ class Grafo:
 	def indice_pra_insercao_binaria(self,lista_ordenada,alvo,inicio,fim):
 		u'''É um método para inserção binária de elementos. Criei esse método para que, quando eu for utilizar a visualização dos grafos por listas, para cada vértice vi, seus adjacentes vj estejam ordenados, de modo a otimizar futuras operações com esta lista.'''
 		if fim<=inicio:
-			return inicio+1 if alvo>lista_ordenada[fim] else inicio
+			if self.grafo_com_pesos:
+				return inicio+1 if alvo>lista_ordenada[fim][0] else inicio
+			else:
+				return inicio+1 if alvo>lista_ordenada[fim] else inicio
+
 		meio=int((inicio+fim)/2)
-		encontrada=lista_ordenada[meio]
+
+		if self.grafo_com_pesos:
+			encontrada=lista_ordenada[meio][0]
+		else:
+			encontrada=lista_ordenada[meio]
+
 		if alvo>encontrada:
 			return self.indice_pra_insercao_binaria(lista_ordenada,alvo,meio+1,fim)
 		else:
@@ -456,12 +499,136 @@ A menor componente conexa tem tamanho: %s\
 
 		return diametro
 
+	def dijkstra_working(self, vertice_inicial):
+
+		for i in xrange(self.qtd_vertices):
+			for peso in self.ver_vizinhos(i):
+				if peso[1] < 0:
+					print "Djikstra não pode ser realizado, pois o grafo possui pesos negativos"
+					return
+
+		indice_inicial = vertice_inicial-1
+
+		dist = [0]*self.qtd_vertices
+		for i in range(len(dist)):
+			dist[i] = [float('inf'),i]
+		dist[indice_inicial] = [0,indice_inicial]
+
+		#dist = BHeap()
+
+		#for vertice in xrange(self.qtd_vertices):
+		#	dist.add(float('inf'),vertice)
+
+		#dist.update((0,indice_inicial))
+
+		S = [float('inf')]*self.qtd_vertices #Lista de distâncias de cada vértice até o vértice inicial
+		S[indice_inicial] = 0
+		caminho = [[] for i in range(self.qtd_vertices)] #Lista de caminhos de cada vértice até o vértice inicial
+		caminho[indice_inicial].append(indice_inicial)
+
+		distancias = [float('inf')]*self.qtd_vertices
+		distancias[indice_inicial] = 0
+
+		explorados = set()
+
+		contador = 0
+
+		while contador <= self.qtd_vertices:
+		#	u = dist.remove()
+
+			u = [float('inf'), 0]
+
+			for i in range(len(dist)):
+				if dist[i][1] not in explorados:
+					if dist[i][0] < u[0]:
+						u = dist[i]
+
+			explorados.add(u[1])
+
+			u[1] = int(u[1])
+
+			for v_vizinho in self.ver_vizinhos(u[1]):
+
+				if distancias[v_vizinho[0]] > float(u[0]) + float(v_vizinho[1]):
+					distancias[v_vizinho[0]] = float(u[0]) + float(v_vizinho[1])
+		#			dist.update(distancias[v_vizinho], v_vizinho)
+
+					dist[v_vizinho[0]] = [distancias[v_vizinho[0]],v_vizinho[0]]
+					S[v_vizinho[0]] = float(u[0]) + float(v_vizinho[1])
+					caminho[v_vizinho[0]] = caminho[u[1]] + [int(v_vizinho[0])]
+
+			contador += 1
+
+		print S
+		print ""
+		print caminho
+
+	def dijkstra(self, vertice_inicial):
+
+		for i in xrange(self.qtd_vertices):
+			for peso in self.ver_vizinhos(i):
+				if peso[1] < 0:
+					print "Djikstra não pode ser realizado, pois o grafo possui pesos negativos"
+					return
+
+		indice_inicial = vertice_inicial-1
+
+		dist = BHeap()
+
+		for vertice in xrange(self.qtd_vertices):
+			dist.add([float('inf'),vertice])
+
+		dist.update([0,indice_inicial])
+
+		S = [float('inf')]*self.qtd_vertices #Lista de distâncias de cada vértice até o vértice inicial
+		S[indice_inicial] = 0
+
+		caminho = [[] for i in range(self.qtd_vertices)] #Lista de caminhos de cada vértice até o vértice inicial
+		caminho[indice_inicial].append(indice_inicial)
+
+		distancias = [float('inf')]*self.qtd_vertices
+		distancias[indice_inicial] = 0
+
+		explorados = set()
+
+		contador = 0
+
+		while contador <= self.qtd_vertices:
+			u = dist.remove()
+
+			explorados.add(u[1])
+
+			u[1] = int(u[1])
+
+			for v_vizinho in self.ver_vizinhos(u[1]):
+
+				if distancias[v_vizinho[0]] > float(u[0]) + float(v_vizinho[1]):
+					distancias[v_vizinho[0]] = float(u[0]) + float(v_vizinho[1])
+				#	dist.update(distancias[v_vizinho], v_vizinho)
+
+					dist[v_vizinho[0]] = [distancias[v_vizinho[0]],v_vizinho[0]]
+					S[v_vizinho[0]] = float(u[0]) + float(v_vizinho[1])
+					caminho[v_vizinho[0]] = caminho[u[1]] + [int(v_vizinho[0])]
+
+			contador += 1
+
+		print S
+		print ""
+		print caminho
+
+	def dijkstra_caminho_minimo(self, vertice_inicial, vertice_desejado):
+
+		caminhos = self.dijkstra(vertice_inicial)[1]
+		return caminhos[vertice_desejado-1]
+
 if __name__ == "__main__":
+
+	########## Trabalho 1 ########## 
 
 	#print psutil.virtual_memory()
 	#start = time.time()
 	#grafo=Grafo(entrada_txt='teste.txt',formato_lista=True,formato_matriz=False)
-	grafo=Grafo(entrada_txt='as_graph.txt',formato_lista=True,formato_matriz=False)
+	#grafo=Grafo(entrada_txt='as_graph.txt',formato_lista=True,formato_matriz=False)
 	#grafo=Grafo(entrada_txt='dblp.txt',formato_lista=True,formato_matriz=False)
 	#grafo=Grafo(entrada_txt='live_journal.txt',formato_lista=True,formato_matriz=False)
 	#end = time.time()
@@ -472,10 +639,10 @@ if __name__ == "__main__":
 	#end = time.time()
 	#print(end-start)
 
-	start = time.time()
-	print grafo.componentes_conexas()[2]
-	end = time.time()
-	print(end-start)
+	#start = time.time()
+	#print grafo.componentes_conexas()[2]
+	#end = time.time()
+	#print(end-start)
 
 	#start = time.time()
 	#print grafo.diametro()
@@ -486,3 +653,8 @@ if __name__ == "__main__":
 	#grafo.gerar_arvore_da_dfs(1)
 	#end = time.time()
 	#print(end-start)
+
+	########## Trabalho 2 ##########
+
+	grafo = Grafo(entrada_txt='teste.txt', formato_lista = True, formato_matriz = False)
+	grafo.dijkstra(1)
