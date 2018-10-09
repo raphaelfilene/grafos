@@ -568,11 +568,13 @@ A menor componente conexa tem tamanho: %s\
 		custo.add([0,indice_inicial])
 
 		caminho = [] #Caminho percorrido pela MST
-
+		arvore_prim = [float('inf')]*self.qtd_vertices
 		peso = 0
 
 		distancias = [float('inf')]*self.qtd_vertices
 		distancias[indice_inicial] = 0
+
+		arvore_prim[indice_inicial] = -1
 
 		explorados = set()
 
@@ -590,11 +592,16 @@ A menor componente conexa tem tamanho: %s\
 
 				for v_vizinho in self.ver_vizinhos(u[1]):
 
-					if distancias[v_vizinho[0]] > v_vizinho[1]:
-						distancias[v_vizinho[0]] = v_vizinho[1]
-						custo.add([distancias[v_vizinho[0]], v_vizinho[0]])
+					if v_vizinho[0] not in explorados:
 
-		return peso, caminho
+						if distancias[v_vizinho[0]] > v_vizinho[1]:
+							distancias[v_vizinho[0]] = v_vizinho[1]
+							custo.add([distancias[v_vizinho[0]], v_vizinho[0]])
+
+							if u[0] < arvore_prim[v_vizinho[0]]:
+								arvore_prim[v_vizinho[0]] = u[1]+1
+
+		return peso, caminho, arvore_prim
 
 	def excentricidade(self, vertice):
 
@@ -606,11 +613,11 @@ A menor componente conexa tem tamanho: %s\
 		pares = 0
 		distancia = 0
 
-		for i in range(self.qtd_vertices):
+		for i in xrange(self.qtd_vertices):
 			distancias_temp = self.dijkstra(i)[0]
 
 			for i in distancias_temp:
-				if i != 'inf':
+				if i != float('inf'):
 					distancia += i
 					pares += 1
 
@@ -620,6 +627,26 @@ A menor componente conexa tem tamanho: %s\
 
 		else:
 			return "Nenhum par encontrado; verifique se o grafo foi introduzido corretamente."
+
+	def maiores_graus_prim(self, vertice):
+
+		arvore_prim = self.prim(vertice)[2]
+		lista_graus = [1]*self.qtd_vertices
+		lista_graus[vertice-1] = 0
+		maiores_graus = []
+
+		for i in xrange(len(arvore_prim)):
+
+			if arvore_prim[i] != float('inf') and arvore_prim[i] > -1:
+
+				lista_graus[arvore_prim[i]-1] += 1
+
+		for i in xrange(3):
+			indice = lista_graus.index(max(lista_graus))
+			maiores_graus.append([indice+1,lista_graus[indice]])
+			lista_graus[indice] = 0
+
+		return maiores_graus
 
 if __name__ == "__main__":
 
@@ -656,9 +683,9 @@ if __name__ == "__main__":
 
 	########## Trabalho 2 ##########
 
-	grafo = Grafo(entrada_txt='grafo_1.txt', formato_lista = True, formato_matriz = False)
+	grafo = Grafo(entrada_txt='teste.txt', formato_lista = True, formato_matriz = False)
 
 	start = time.time()
-	print grafo.distancia_media()
+	print grafo.maiores_graus_prim(1)
 	end = time.time()
 	print(end-start)
