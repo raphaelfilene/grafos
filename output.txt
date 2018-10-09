@@ -1,6 +1,0 @@
-número de vértices: 10
-número de arestas: 6
-grau mínimo: 1
-grau máximo: 4
-grau médio: 2.6
-mediana de grau: 2.5
