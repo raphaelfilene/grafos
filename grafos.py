@@ -88,12 +88,12 @@ class Grafo:
 
 				#checando se o vértice é nulo ou negativo
 				if int(v1) <= 0 or int(v2) <= 0:
-					print "Linha não considerada pois possui vértice nulo ou negativo"
+				#	print "Linha não considerada pois possui vértice nulo ou negativo"
 					continue
 
 				#checando se os vértices possuem identificador superior ao máximo permitido
 				elif int(v1) > self.qtd_vertices or int(v2) > self.qtd_vertices:
-					print "Linha não considerada pois referencia vértices que ultrapassam a quantidade indicada"
+				#	print "Linha não considerada pois referencia vértices que ultrapassam a quantidade indicada"
 					continue
 
 				else:
@@ -499,70 +499,6 @@ A menor componente conexa tem tamanho: %s\
 
 		return diametro
 
-	def dijkstra_working(self, vertice_inicial):
-
-		for i in xrange(self.qtd_vertices):
-			for peso in self.ver_vizinhos(i):
-				if peso[1] < 0:
-					print "Djikstra não pode ser realizado, pois o grafo possui pesos negativos"
-					return
-
-		indice_inicial = vertice_inicial-1
-
-		dist = [0]*self.qtd_vertices
-		for i in range(len(dist)):
-			dist[i] = [float('inf'),i]
-		dist[indice_inicial] = [0,indice_inicial]
-
-		#dist = BHeap()
-
-		#for vertice in xrange(self.qtd_vertices):
-		#	dist.add(float('inf'),vertice)
-
-		#dist.update((0,indice_inicial))
-
-		S = [float('inf')]*self.qtd_vertices #Lista de distâncias de cada vértice até o vértice inicial
-		S[indice_inicial] = 0
-		caminho = [[] for i in range(self.qtd_vertices)] #Lista de caminhos de cada vértice até o vértice inicial
-		caminho[indice_inicial].append(indice_inicial)
-
-		distancias = [float('inf')]*self.qtd_vertices
-		distancias[indice_inicial] = 0
-
-		explorados = set()
-
-		contador = 0
-
-		while contador <= self.qtd_vertices:
-		#	u = dist.remove()
-
-			u = [float('inf'), 0]
-
-			for i in range(len(dist)):
-				if dist[i][1] not in explorados:
-					if dist[i][0] < u[0]:
-						u = dist[i]
-
-			explorados.add(u[1])
-
-			u[1] = int(u[1])
-
-			for v_vizinho in self.ver_vizinhos(u[1]):
-
-				if distancias[v_vizinho[0]] > float(u[0]) + float(v_vizinho[1]):
-					distancias[v_vizinho[0]] = float(u[0]) + float(v_vizinho[1])
-		#			dist.update(distancias[v_vizinho], v_vizinho)
-
-					dist[v_vizinho[0]] = [distancias[v_vizinho[0]],v_vizinho[0]]
-					S[v_vizinho[0]] = float(u[0]) + float(v_vizinho[1])
-					caminho[v_vizinho[0]] = caminho[u[1]] + [int(v_vizinho[0])]
-
-			contador += 1
-
-		print S
-		print ""
-		print caminho
-
 	def dijkstra(self, vertice_inicial):
 
 		for i in xrange(self.qtd_vertices):
@@ -574,15 +510,15 @@ A menor componente conexa tem tamanho: %s\
 		indice_inicial = vertice_inicial-1
 
 		dist = BHeap()
+		dist.buildHeap(self.qtd_vertices)
 
 		for vertice in xrange(self.qtd_vertices):
 			dist.add([float('inf'),vertice])
 
-		dist.update([0,indice_inicial])
+		dist.add([0,indice_inicial])
 
 		S = [float('inf')]*self.qtd_vertices #Lista de distâncias de cada vértice até o vértice inicial
 		S[indice_inicial] = 0
-
 		caminho = [[] for i in range(self.qtd_vertices)] #Lista de caminhos de cada vértice até o vértice inicial
 		caminho[indice_inicial].append(indice_inicial)
 
@@ -591,35 +527,99 @@ A menor componente conexa tem tamanho: %s\
 
 		explorados = set()
 
-		contador = 0
+		while len(dist) > 0:
 
-		while contador <= self.qtd_vertices:
 			u = dist.remove()
 
-			explorados.add(u[1])
+			if u[1] not in explorados:
+				explorados.add(u[1])
 
-			u[1] = int(u[1])
+				for v_vizinho in self.ver_vizinhos(u[1]):
 
-			for v_vizinho in self.ver_vizinhos(u[1]):
+					if distancias[v_vizinho[0]] > u[0] + v_vizinho[1]:
+						distancias[v_vizinho[0]] = u[0] + v_vizinho[1]
 
-				if distancias[v_vizinho[0]] > float(u[0]) + float(v_vizinho[1]):
-					distancias[v_vizinho[0]] = float(u[0]) + float(v_vizinho[1])
-				#	dist.update(distancias[v_vizinho], v_vizinho)
+						dist.add([distancias[v_vizinho[0]], v_vizinho[0]])
+						S[v_vizinho[0]] = u[0] + v_vizinho[1]
+						caminho[v_vizinho[0]] = caminho[u[1]] + [v_vizinho[0]]
 
-					dist[v_vizinho[0]] = [distancias[v_vizinho[0]],v_vizinho[0]]
-					S[v_vizinho[0]] = float(u[0]) + float(v_vizinho[1])
-					caminho[v_vizinho[0]] = caminho[u[1]] + [int(v_vizinho[0])]
-
-			contador += 1
-
-		print S
-		print ""
-		print caminho
+		return S, caminho
 
 	def dijkstra_caminho_minimo(self, vertice_inicial, vertice_desejado):
 
 		caminhos = self.dijkstra(vertice_inicial)[1]
 		return caminhos[vertice_desejado-1]
+
+	def dijkstra_distancia(self, vertice_inicial, vertice_desejado):
+
+		distancias = self.dijkstra(vertice_inicial)[0]
+		return distancias[vertice_desejado-1]
+
+	def prim(self, vertice_inicial):
+
+		indice_inicial = vertice_inicial-1
+
+		custo = BHeap()
+		custo.buildHeap(self.qtd_vertices)
+
+		for vertice in xrange(self.qtd_vertices):
+			custo.add([float('inf'),vertice])
+
+		custo.add([0,indice_inicial])
+
+		caminho = [] #Caminho percorrido pela MST
+
+		peso = 0
+
+		distancias = [float('inf')]*self.qtd_vertices
+		distancias[indice_inicial] = 0
+
+		explorados = set()
+
+		while len(custo) > 0:
+
+			u = custo.remove()
+
+			if u[0] == float('inf'):
+				break
+
+			if u[1] not in explorados:
+				explorados.add(u[1])
+				caminho.append(u[1]+1)
+				peso += u[0]
+
+				for v_vizinho in self.ver_vizinhos(u[1]):
+
+					if distancias[v_vizinho[0]] > v_vizinho[1]:
+						distancias[v_vizinho[0]] = v_vizinho[1]
+						custo.add([distancias[v_vizinho[0]], v_vizinho[0]])
+
+		return peso, caminho
+
+	def excentricidade(self, vertice):
+
+		excentricidades = self.dijkstra(vertice)[0]
+		return max(excentricidades)
+
+	def distancia_media(self):
+
+		pares = 0
+		distancia = 0
+
+		for i in range(self.qtd_vertices):
+			distancias_temp = self.dijkstra(i)[0]
+
+			for i in distancias_temp:
+				if i != 'inf':
+					distancia += i
+					pares += 1
+
+		if pares > 0:
+			distancia = distancia / pares
+			return distancia
+
+		else:
+			return "Nenhum par encontrado; verifique se o grafo foi introduzido corretamente."
 
 if __name__ == "__main__":
 
@@ -656,5 +656,9 @@ if __name__ == "__main__":
 
 	########## Trabalho 2 ##########
 
-	grafo = Grafo(entrada_txt='teste.txt', formato_lista = True, formato_matriz = False)
-	grafo.dijkstra(1)
+	grafo = Grafo(entrada_txt='grafo_1.txt', formato_lista = True, formato_matriz = False)
+
+	start = time.time()
+	print grafo.distancia_media()
+	end = time.time()
+	print(end-start)

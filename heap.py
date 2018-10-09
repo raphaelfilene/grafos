@@ -5,6 +5,15 @@ class BHeap:
 	def __init(self):
 		self.heapList = [0]
 		self.currentSize = 0
+		self.indexList = [0]
+
+	def __len__(self):
+
+		return len(self.heapList)-1
+
+	def printHeap(self):
+
+		print(self.heapList)
 
 	def remove(self):
 
@@ -13,13 +22,13 @@ class BHeap:
 		self.currentSize -= 1
 		self.heapList.pop()
 		self.percDown(1)
+
 		return menor_valor
 
-	def update(self, elemento, elemento_atualizado):
-		pass
-
 	def add(self, elemento):
+
 		self.heapList.append(elemento)
+		self.indexList[elemento[1]] = elemento[0]
 		self.currentSize += 1
 		self.percUp(self.currentSize)
 
@@ -56,19 +65,29 @@ class BHeap:
 			else:
 				return i * 2 + 1
 
-	def buildHeap(self, lista):
+	def buildHeap(self, vertices):
 
-		i = len(lista) // 2
-		self.currentSize = len(lista)
-		self.heapList = [0] + lista[:]
-		while (i > 0):
-			self.percDown(i)
-			i -= 1
+		self.currentSize = 0
+		self.heapList = [0] + []
+		self.indexList = [0] + []
+
+		for i in range(vertices):
+			self.indexList.append(-1)
 
 if __name__ == '__main__':
 	bh = BHeap()
-	bh.buildHeap([9,5,6,2,3])
+	bh.buildHeap(12)
+	bh.add([0,0])
+	bh.add([6,3])
+	bh.add([9,0])
+	bh.add([5,1])
+	bh.add([8,2])
+	bh.add([3,5])
+	bh.add([1,4])
+	bh.add([0,12])
 
+	print(bh.remove())
+	print(bh.remove())
 	print(bh.remove())
 	print(bh.remove())
 	print(bh.remove())
