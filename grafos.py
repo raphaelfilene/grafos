@@ -510,7 +510,7 @@ A menor componente conexa tem tamanho: %s\
 		indice_inicial = vertice_inicial-1
 
 		dist = BHeap()
-		dist.buildHeap(self.qtd_vertices)
+		dist.buildHeap()
 
 		for vertice in xrange(self.qtd_vertices):
 			dist.add([float('inf'),vertice])
@@ -520,10 +520,7 @@ A menor componente conexa tem tamanho: %s\
 		S = [float('inf')]*self.qtd_vertices #Lista de distâncias de cada vértice até o vértice inicial
 		S[indice_inicial] = 0
 		caminho = [[] for i in range(self.qtd_vertices)] #Lista de caminhos de cada vértice até o vértice inicial
-		caminho[indice_inicial].append(indice_inicial)
-
-		distancias = [float('inf')]*self.qtd_vertices
-		distancias[indice_inicial] = 0
+		caminho[indice_inicial].append(indice_inicial+1)
 
 		explorados = set()
 
@@ -536,31 +533,26 @@ A menor componente conexa tem tamanho: %s\
 
 				for v_vizinho in self.ver_vizinhos(u[1]):
 
-					if distancias[v_vizinho[0]] > u[0] + v_vizinho[1]:
-						distancias[v_vizinho[0]] = u[0] + v_vizinho[1]
+					if v_vizinho[0] not in explorados:
 
-						dist.add([distancias[v_vizinho[0]], v_vizinho[0]])
-						S[v_vizinho[0]] = u[0] + v_vizinho[1]
-						caminho[v_vizinho[0]] = caminho[u[1]] + [v_vizinho[0]]
+						if S[v_vizinho[0]] > u[0] + v_vizinho[1]:
+							S[v_vizinho[0]] = u[0] + v_vizinho[1]
+							dist.add([S[v_vizinho[0]], v_vizinho[0]])
+							caminho[v_vizinho[0]] = caminho[u[1]] + [v_vizinho[0]+1]
 
 		return S, caminho
 
-	def dijkstra_caminho_minimo(self, vertice_inicial, vertice_desejado):
+	def dijkstra_caminho_minimo_distancia(self,vertice_inicial, vertice_desejado):
 
-		caminhos = self.dijkstra(vertice_inicial)[1]
-		return caminhos[vertice_desejado-1]
-
-	def dijkstra_distancia(self, vertice_inicial, vertice_desejado):
-
-		distancias = self.dijkstra(vertice_inicial)[0]
-		return distancias[vertice_desejado-1]
+		valores = self.dijkstra(vertice_inicial)
+		return valores[1][vertice_desejado-1], valores[0][vertice_desejado-1]
 
 	def prim(self, vertice_inicial):
 
 		indice_inicial = vertice_inicial-1
 
 		custo = BHeap()
-		custo.buildHeap(self.qtd_vertices)
+		custo.buildHeap()
 
 		for vertice in xrange(self.qtd_vertices):
 			custo.add([float('inf'),vertice])
@@ -683,9 +675,9 @@ if __name__ == "__main__":
 
 	########## Trabalho 2 ##########
 
-	grafo = Grafo(entrada_txt='teste.txt', formato_lista = True, formato_matriz = False)
+	grafo = Grafo(entrada_txt='grafo_5.txt', formato_lista = True, formato_matriz = False)
 
 	start = time.time()
-	print grafo.maiores_graus_prim(1)
+	print grafo.dijkstra_caminho_minimo_distancia(1,50)
 	end = time.time()
 	print(end-start)

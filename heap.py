@@ -5,7 +5,6 @@ class BHeap:
 	def __init(self):
 		self.heapList = [0]
 		self.currentSize = 0
-		self.indexList = [0]
 
 	def __len__(self):
 
@@ -28,7 +27,6 @@ class BHeap:
 	def add(self, elemento):
 
 		self.heapList.append(elemento)
-		self.indexList[elemento[1]] = elemento[0]
 		self.currentSize += 1
 		self.percUp(self.currentSize)
 
@@ -65,18 +63,14 @@ class BHeap:
 			else:
 				return i * 2 + 1
 
-	def buildHeap(self, vertices):
+	def buildHeap(self):
 
 		self.currentSize = 0
 		self.heapList = [0] + []
-		self.indexList = [0] + []
-
-		for i in range(vertices):
-			self.indexList.append(-1)
 
 if __name__ == '__main__':
 	bh = BHeap()
-	bh.buildHeap(12)
+	bh.buildHeap()
 	bh.add([0,0])
 	bh.add([6,3])
 	bh.add([9,0])
