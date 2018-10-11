@@ -145,37 +145,60 @@ class Grafo:
 	def criar_matriz_grafo_a_partir_de_entrada_txt(self,formato_matriz):
 		u'''Se "formato_matriz==True", então será criada uma matriz a partir de um grafo oriundo de um arquivo txt'''
 		if formato_matriz:
-			pergunta='A representação matricial do grafo pedido requer um total de %s de memória. Tem certeza que deseja criar esta representação? (S/N)\n'%self.calcular_memoria_necessaria()
-			resposta=''
-			while resposta not in ['S','N']:
-				resposta=raw_input(pergunta)
-				resposta=resposta.upper()
-				if resposta not in ['S','N']:
-					print u'\nErro: a resposta deve ser apenas S ou N.\n\n'
+			#pergunta='A representação matricial do grafo pedido requer um total de %s de memória. Tem certeza que deseja criar esta representação? (S/N)\n'%self.calcular_memoria_necessaria()
+			#resposta=''
+			#while resposta not in ['S','N']:
+			#	resposta=raw_input(pergunta)
+			#	resposta=resposta.upper()
+			#	if resposta not in ['S','N']:
+			#		print u'\nErro: a resposta deve ser apenas S ou N.\n\n'
+			resposta = 'S'
 			if resposta=='S':
 				self.grafo_matriz=[]
 				linha=[0]*self.qtd_vertices
 				for i in xrange(self.qtd_vertices):
 					self.grafo_matriz.append(linha[:]) #ao fazer linha[:] em vez de apenas linha, eu obrigo o python a criar matrizes iguais a linha porém sem utilizar o mesmo endereço de memória (o que seria errado)
-				if self.list_view:
-					for v1 in xrange(self.qtd_vertices):
-						for v2 in self.grafo_lista[v1]:
-							self.grafo_matriz[v1][v2]=1
+				#if self.list_view:
+				#	for v1 in xrange(self.qtd_vertices):
+				#		for v2 in self.grafo_lista[v1]:
+				#			self.grafo_matriz[v1][v2]=1
+				if False:
+					pass
+
 				else:
 
 					partition_format = ' '
+
 					try:
 						v1,espaco,v2 = self.lista_geral[1].partition(partition_format)
-						teste = int(v1) #testa se a separação é feita por ' '
+						teste1 = int(v1) #testa se a separação é feita por ' '
+						try:
+							v2,espaco,peso = v2.partition(partition_format)
+							teste2 = int(v2)
+							teste3 = float(peso)
+							self.grafo_com_pesos = True
+						except:
+							pass
 					except:
 						try:
-							self.lista_geral[1].partition('\t')
 							partition_format = '\t'
+							v1,espaco,v2 = self.lista_geral[1].partition(partition_format)
+							teste1 = int(v1)
+							try:
+								v2,espaco,peso = v2.partition(partition_format)
+								teste2 = int(v2)
+								teste3 = float(peso)
+								self.grafo_com_pesos = True
+							except:
+								pass
 						except:
 							pass
 
 					for i in self.lista_geral[1:]: #ex: i="1 2"
 						v1,espaco,v2=i.partition(partition_format) #ex: v1="1", espaco=" ", v2="2"
+
+						if self.grafo_com_pesos:
+							v2,espaco,peso = v2.partition(partition_format)
 
 						if int(v1) <= 0 or int(v2) <= 0:
 							print "Linha não considerada pois possui vértice nulo ou negativo"
@@ -187,8 +210,13 @@ class Grafo:
 							continue
 
 						else:
-							self.grafo_matriz[int(v1)-1][int(v2)-1]=1 #ex: para i="1 2", o "1" representará o índice 0 e o "2" representará o índice 1, logo, uma aresta(0,1)
-							self.grafo_matriz[int(v2)-1][int(v1)-1]=1
+
+							valor = 1
+							if self.grafo_com_pesos:
+								valor = float(peso)
+
+							self.grafo_matriz[int(v1)-1][int(v2)-1]=valor #ex: para i="1 2", o "1" representará o índice 0 e o "2" representará o índice 1, logo, uma aresta(0,1)
+							self.grafo_matriz[int(v2)-1][int(v1)-1]=valor
 
 				self.matrix_view=True #variável que me informará que o formato matriz foi criado com sucesso
 
@@ -289,7 +317,7 @@ A menor componente conexa tem tamanho: %s\
 		if self.list_view:
 			return self.grafo_lista[indice_vertice]
 		elif self.matrix_view:
-			return [i for i,v in enumerate(self.grafo_matriz[indice_vertice]) if v==1]
+			return [[i,v] for i,v in enumerate(self.grafo_matriz[indice_vertice]) if v!=0]
 		return []
 
 	def gerar_arvore_da_bfs(self,vertice_inicial,output=True): #BFS(busca em largura)
@@ -611,6 +639,9 @@ A menor componente conexa tem tamanho: %s\
 
 	def distancia_media(self):
 
+		if self.grafo_com_pesos == False:
+			return 1
+
 		pares = 0
 		distancia = 0
 
@@ -685,5 +716,9 @@ if __name__ == "__main__":
 
 	########## Trabalho 2 ##########
 
-	grafo = Grafo(entrada_txt='teste.txt', formato_lista = True, formato_matriz = False)
-	print grafo.nivel(1,5,modelo_arvore="DFS")
+	#grafo = Grafo(entrada_txt='teste2.txt', formato_lista = True, formato_matriz = False)
+	#grafo.gerar_arvore_da_bfs(2,output=False)
+	#print ""
+	grafo2 = Grafo(entrada_txt='teste.txt', formato_lista = False, formato_matriz = True)
+	grafo2.criar_lista_de_graus()
+	#print grafo.distancia_media()
