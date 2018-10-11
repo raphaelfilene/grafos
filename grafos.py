@@ -317,7 +317,10 @@ A menor componente conexa tem tamanho: %s\
 		if self.list_view:
 			return self.grafo_lista[indice_vertice]
 		elif self.matrix_view:
-			return [[i,v] for i,v in enumerate(self.grafo_matriz[indice_vertice]) if v!=0]
+			if self.grafo_com_pesos:
+				return [[i,v] for i,v in enumerate(self.grafo_matriz[indice_vertice]) if v!=0]
+			else:
+				return [i for i,v in enumerate(self.grafo_matriz[indice_vertice]) if v==1]
 		return []
 
 	def gerar_arvore_da_bfs(self,vertice_inicial,output=True): #BFS(busca em largura)
@@ -720,5 +723,5 @@ if __name__ == "__main__":
 	#grafo.gerar_arvore_da_bfs(2,output=False)
 	#print ""
 	grafo2 = Grafo(entrada_txt='teste.txt', formato_lista = False, formato_matriz = True)
-	grafo2.criar_lista_de_graus()
+	grafo2.gerar_arvore_da_bfs(2,output=False)
 	#print grafo.distancia_media()
