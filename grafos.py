@@ -328,6 +328,10 @@ A menor componente conexa tem tamanho: %s\
 		while(len(descobertos) > indice_descobertos):
 			v_descoberto = descobertos[indice_descobertos]
 			for v_vizinho in self.ver_vizinhos(v_descoberto):
+
+				if self.grafo_com_pesos:
+					v_vizinho = v_vizinho[0]
+
 				if v_vizinho not in marcados:
 					marcados.add(v_vizinho)
 					descobertos.append(v_vizinho)
@@ -377,6 +381,9 @@ A menor componente conexa tem tamanho: %s\
 				camada_atual += 1
 
 				for v_vizinho in self.ver_vizinhos(v_descoberto):
+
+					if self.grafo_com_pesos:
+						v_vizinho = v_vizinho[0]
 
 					if v_vizinho not in marcados:
 						P.append(v_vizinho)
@@ -431,9 +438,14 @@ A menor componente conexa tem tamanho: %s\
 		for i in xrange(self.qtd_vertices):
 			vizinhos=self.ver_vizinhos(i-1)
 			#Examina se o grau do vértice é maior que 0
+
 			if len(vizinhos):
 				#Examina cada vizinho do vértice escolhido
 				for indice in vizinhos:
+
+					if self.grafo_com_pesos:
+						indice = indice[0]
+
 					vertice=indice+1
 					#Caso o vizinho não seja parte de nenhuma componente conexa, é feita uma dfs partindo dele
 					if vertice not in vertices_conexos:
@@ -542,7 +554,7 @@ A menor componente conexa tem tamanho: %s\
 
 		return S, caminho
 
-	def dijkstra_caminho_minimo_distancia(self,vertice_inicial, vertice_desejado):
+	def dijkstra_caminho_minimo_distancia(self, vertice_inicial, vertice_desejado):
 
 		valores = self.dijkstra(vertice_inicial)
 		return valores[1][vertice_desejado-1], valores[0][vertice_desejado-1]
@@ -567,11 +579,9 @@ A menor componente conexa tem tamanho: %s\
 		distancias[indice_inicial] = 0
 
 		arvore_prim[indice_inicial] = -1
-
 		explorados = set()
 
 		while len(custo) > 0:
-
 			u = custo.remove()
 
 			if u[0] == float('inf'):
@@ -583,7 +593,6 @@ A menor componente conexa tem tamanho: %s\
 				peso += u[0]
 
 				for v_vizinho in self.ver_vizinhos(u[1]):
-
 					if v_vizinho[0] not in explorados:
 
 						if distancias[v_vizinho[0]] > v_vizinho[1]:
@@ -618,7 +627,8 @@ A menor componente conexa tem tamanho: %s\
 			return distancia
 
 		else:
-			return "Nenhum par encontrado; verifique se o grafo foi introduzido corretamente."
+			print "Nenhum par encontrado; verifique se o grafo foi introduzido corretamente."
+			return
 
 	def maiores_graus_prim(self, vertice):
 
@@ -675,9 +685,5 @@ if __name__ == "__main__":
 
 	########## Trabalho 2 ##########
 
-	grafo = Grafo(entrada_txt='grafo_5.txt', formato_lista = True, formato_matriz = False)
-
-	start = time.time()
-	print grafo.dijkstra_caminho_minimo_distancia(1,50)
-	end = time.time()
-	print(end-start)
+	grafo = Grafo(entrada_txt='teste.txt', formato_lista = True, formato_matriz = False)
+	print grafo.nivel(1,5,modelo_arvore="DFS")

@@ -3,8 +3,8 @@
 class BHeap:
 
 	def __init(self):
-		self.heapList = [0]
-		self.currentSize = 0
+		self.heapList = [0] + []
+		self.tamanhoAtual = 0
 
 	def __len__(self):
 
@@ -17,22 +17,22 @@ class BHeap:
 	def remove(self):
 
 		menor_valor = self.heapList[1]
-		self.heapList[1] = self.heapList[self.currentSize]
-		self.currentSize -= 1
+		self.heapList[1] = self.heapList[self.tamanhoAtual]
+		self.tamanhoAtual -= 1
 		self.heapList.pop()
-		self.percDown(1)
+		self.descer_item(1)
 
 		return menor_valor
 
 	def add(self, elemento):
 
 		self.heapList.append(elemento)
-		self.currentSize += 1
-		self.percUp(self.currentSize)
+		self.tamanhoAtual += 1
+		self.subir_item(self.tamanhoAtual)
 
-	def percDown(self,i):
+	def descer_item(self, i):
 
-		while (i * 2) <= self.currentSize:
+		while (i * 2) <= self.tamanhoAtual:
 			mc = self.minChild(i)
 
 			if self.heapList[i] > self.heapList[mc]:
@@ -42,7 +42,7 @@ class BHeap:
 
 			i = mc
 
-	def percUp(self, i):
+	def subir_item(self, i):
 
 		while i // 2 > 0:
 			if self.heapList[i] < self.heapList[i // 2]:
@@ -54,7 +54,7 @@ class BHeap:
 
 	def minChild(self, i):
 
-		if i * 2 + 1 > self.currentSize:
+		if i * 2 + 1 > self.tamanhoAtual:
 			return i * 2
 
 		else:
@@ -65,7 +65,7 @@ class BHeap:
 
 	def buildHeap(self):
 
-		self.currentSize = 0
+		self.tamanhoAtual = 0
 		self.heapList = [0] + []
 
 if __name__ == '__main__':
@@ -79,6 +79,8 @@ if __name__ == '__main__':
 	bh.add([3,5])
 	bh.add([1,4])
 	bh.add([0,12])
+
+	bh.printHeap()
 
 	print(bh.remove())
 	print(bh.remove())
