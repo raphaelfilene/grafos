@@ -552,32 +552,39 @@ A menor componente conexa tem tamanho: %s\
 
 		indice_inicial = vertice_inicial-1
 
+		# Criação e inicialização do heap que será utilizado
 		dist = BHeap()
 		dist.buildHeap()
 
+		#Preenche o heap com peso infinito para cada vértice do grafo; elementos do heap tem formato [peso,vertice]
 		for vertice in xrange(self.qtd_vertices):
 			dist.add([float('inf'),vertice])
 
+		#Adiciona o indice inicial com peso 0 ao heap
 		dist.add([0,indice_inicial])
 
 		S = [float('inf')]*self.qtd_vertices #Lista de distâncias de cada vértice até o vértice inicial
-		S[indice_inicial] = 0
+		S[indice_inicial] = 0 #Distância do vértice até ele próprio definida como 0
 		caminho = [[] for i in range(self.qtd_vertices)] #Lista de caminhos de cada vértice até o vértice inicial
-		caminho[indice_inicial].append(indice_inicial+1)
+		caminho[indice_inicial].append(indice_inicial+1) #Vértice inicial adicionado como primeiro elemento do caminho percorrido
 
-		explorados = set()
+		explorados = set() #Set que contém todos os vértices já explorados
 
 		while len(dist) > 0:
 
-			u = dist.remove()
+			u = dist.remove() #Remove elemento de menor peso do heap
 
+			#Checa se o elemento já foi explorado; caso não tenha sido, adiciona-se ele ao set explorados
 			if u[1] not in explorados:
 				explorados.add(u[1])
 
+				#Para cada vizinho não explorado de u
 				for v_vizinho in self.ver_vizinhos(u[1]):
-
 					if v_vizinho[0] not in explorados:
 
+						#Verifica se o peso atual do vizinho é maior que a soma do peso para chegar até o vértice u e ir deste até o vizinho;
+						#em caso positivo, atualiza-se o peso atual do vizinho, adiciona-se o valor atualizado de sua distância ao heap
+						#e seu caminho até o vértice inicial é atualizado com o caminho ao vértice u adicionado do vizinho
 						if S[v_vizinho[0]] > u[0] + v_vizinho[1]:
 							S[v_vizinho[0]] = u[0] + v_vizinho[1]
 							dist.add([S[v_vizinho[0]], v_vizinho[0]])
@@ -594,30 +601,35 @@ A menor componente conexa tem tamanho: %s\
 
 		indice_inicial = vertice_inicial-1
 
+		# Criação e inicialização do heap que será utilizado
 		custo = BHeap()
 		custo.buildHeap()
 
+		#Preenche o heap com custo infinito para cada vértice do grafo; elementos do heap tem formato [custo,vertice]
 		for vertice in xrange(self.qtd_vertices):
 			custo.add([float('inf'),vertice])
 
+		#Adiciona o indice inicial com custo 0 ao heap
 		custo.add([0,indice_inicial])
 
 		caminho = [] #Caminho percorrido pela MST
-		arvore_prim = [float('inf')]*self.qtd_vertices
-		peso = 0
+		arvore_prim = [float('inf')]*self.qtd_vertices #Lista contendo o pai de cada vértice na MST
+		peso = 0 #Peso total da MST
 
-		distancias = [float('inf')]*self.qtd_vertices
+		distancias = [float('inf')]*self.qtd_vertices #Lista contendo as menores distâncias necessárias para chegar a cada vértice
 		distancias[indice_inicial] = 0
 
 		arvore_prim[indice_inicial] = -1
-		explorados = set()
+		explorados = set() #Set que contém todos os vértices já explorados
 
 		while len(custo) > 0:
-			u = custo.remove()
+			u = custo.remove() #Remove do heap o elemento de menor custo
 
+			#Caso o custo seja infinito, todos os elementos restando no heap possuem custo infinito; logo, quebra-se o loop
 			if u[0] == float('inf'):
 				break
 
+			#Caso u não tenha sido explorado, adiciona-se ele aos explorados, ao caminho percorrido pela MST e seu peso ao peso total
 			if u[1] not in explorados:
 				explorados.add(u[1])
 				caminho.append(u[1]+1)
@@ -626,6 +638,8 @@ A menor componente conexa tem tamanho: %s\
 				for v_vizinho in self.ver_vizinhos(u[1]):
 					if v_vizinho[0] not in explorados:
 
+						#Verifica se a distância atual para chegar ao vértice é maior que a distância para chegar a este vértice partindo de u;
+						#caso ela seja, sua distância é atualizada em distancias e no heap
 						if distancias[v_vizinho[0]] > v_vizinho[1]:
 							distancias[v_vizinho[0]] = v_vizinho[1]
 							custo.add([distancias[v_vizinho[0]], v_vizinho[0]])
@@ -642,21 +656,21 @@ A menor componente conexa tem tamanho: %s\
 
 	def distancia_media(self):
 
-		if self.grafo_com_pesos == False:
-			return 1
+		pares = 0 #Número de pares válidos
+		distancia = 0 #Distância total
 
-		pares = 0
-		distancia = 0
-
+		#Para cada vértice no grafo, faz-se Dijkstra e retorna-se a lista contendo a distância do vértice a todos os outros
 		for i in xrange(self.qtd_vertices):
 			distancias_temp = self.dijkstra(i)[0]
 
+			#Para as distâncias recebidas, caso ela não seja infinita ela é somada a distância total e o número de pares válidos incrementado por 1
 			for i in distancias_temp:
 				if i != float('inf'):
 					distancia += i
 					pares += 1
 
 		if pares > 0:
+			#Divide a distância total pelo número de pares para se obter a distância média
 			distancia = distancia / pares
 			return distancia
 
@@ -666,17 +680,19 @@ A menor componente conexa tem tamanho: %s\
 
 	def maiores_graus_prim(self, vertice):
 
-		arvore_prim = self.prim(vertice)[2]
-		lista_graus = [1]*self.qtd_vertices
-		lista_graus[vertice-1] = 0
-		maiores_graus = []
+		arvore_prim = self.prim(vertice)[2] #Lista de pais de cada vértice da MST obtida por Prim
+		lista_graus = [1]*self.qtd_vertices #Lista contendo o grau de cada vértice da MST; todos começam com grau 1 pois a função assume que todo vértice exceto a raiz da MST possui um pai
+		lista_graus[vertice-1] = 0 #Reduz-se o grau da raiz por 1, dado que ela não possui pai na MST
+		maiores_graus = [] #Lista contendo os maiores graus e seus respectivos vértices encontrados, no formato [vértice, grau]
 
 		for i in xrange(len(arvore_prim)):
 
+			#Cada vez que um vértice é considerado como pai na lista de vértices, soma-se 1 à seu grau total
 			if arvore_prim[i] != float('inf') and arvore_prim[i] > -1:
-
 				lista_graus[arvore_prim[i]-1] += 1
 
+		#Encontra-se o vértice de maior grau da lista, que é então adicioná-lo a lista maiores_graus; seu valor em lista_graus é atualizado para 0
+		#O processo se repete 3 vezes, coletando assim os 3 maiores graus
 		for i in xrange(3):
 			indice = lista_graus.index(max(lista_graus))
 			maiores_graus.append([indice+1,lista_graus[indice]])
@@ -723,5 +739,5 @@ if __name__ == "__main__":
 	#grafo.gerar_arvore_da_bfs(2,output=False)
 	#print ""
 	grafo2 = Grafo(entrada_txt='teste.txt', formato_lista = False, formato_matriz = True)
-	grafo2.gerar_arvore_da_bfs(2,output=False)
+	print grafo2.prim(2)
 	#print grafo.distancia_media()
