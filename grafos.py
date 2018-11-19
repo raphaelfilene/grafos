@@ -5,7 +5,6 @@ import time
 import psutil
 from heap import *
 from math import sqrt
-from itertools import permutations
 
 class Grafo:
 	nome_output='output.txt'
@@ -730,25 +729,32 @@ A menor componente conexa tem tamanho: %s\
 			comprimento+=self.grafo_matriz[caminho[i-1]][caminho[i]]
 		return comprimento
 
-	def vertice_mais_proximo(self,indice_vertice):
+	def vizinho_mais_proximo(self,vertice,vizinhos):
 		distancia=float('inf')
-		indice_vertice_mais_proximo=None
-		for i,v in enumerate(self.grafo_matriz[indice_vertice]):
-			if v>0 and v<distancia:
-				indice_vertice_mais_proximo=i
-				distancia=v
-		return i
+		vizinho=None
+		for v in vizinhos:
+			if self.grafo_matriz[vertice][v]<distancia:
+				distancia=self.grafo_matriz[vertice][v]
+				vizinho=v
+		return vizinho,distancia
 
 	def menor_caminho(self,vertices):
-		permutacoes=permutations(vertices)
-		comprimento=float('inf')
-		caminho=[]
-		for p in permutacoes:
-			c=self.comprimento_caminho(p)
-			if c<comprimento:
-				caminho=p
-				comprimento=c
-		return caminho,comprimento
+		melhor_caminho=[]
+		comprimento_melhor_caminho=float('inf')
+		for i,v in enumerate(vertices):
+			caminho=[v]
+			comprimento=0
+			resto=vertices[:]
+			del resto[i]
+			while len(resto):
+				novo_vizinho,distancia=self.vizinho_mais_proximo(caminho[-1],resto)
+				caminho.append(novo_vizinho)
+				comprimento+=distancia
+				resto.remove(novo_vizinho)
+			if comprimento<comprimento_melhor_caminho:
+				melhor_caminho=caminho
+				comprimento_melhor_caminho=comprimento
+		return melhor_caminho,comprimento_melhor_caminho
 
 	def caixeiro_viajante(self,vertices=None):
 		u'''
@@ -882,7 +888,7 @@ if __name__ == "__main__":
 arquivo: %s
 caminho: %s
 comprimento: %s
-tempo: %.2f segundos
+tempo: %.6f segundos
 		'''%(arquivo,str(caminho)[1:-1],comprimento,dt)
 		open('resultado caixeiro viajante.txt','wb').write(texto)
 		print arquivo
