@@ -765,6 +765,10 @@ A menor componente conexa tem tamanho: %s\
 		'''
 		if vertices==None:
 			vertices=range(self.qtd_vertices)
+
+		if len(vertices)<=self.qtd_vertices_pra_analisar:
+			return self.menor_caminho(vertices)
+
 		coordenadas=[self.coordenadas[i] for i in vertices]
 
 		intervalo_x=[coordenadas[0][0],coordenadas[0][0]]
@@ -802,10 +806,7 @@ A menor componente conexa tem tamanho: %s\
 		caminhos=[]
 		comprimentos=[]
 		for regiao in vertices_por_regioes:
-			if len(regiao)<=self.qtd_vertices_pra_analisar:
-				caminho,comprimento=self.menor_caminho(regiao)
-			else:
-				caminho,comprimento=self.caixeiro_viajante(regiao)
+			caminho,comprimento=self.caixeiro_viajante(regiao)
 			caminhos.append(caminho)
 			comprimentos.append(comprimento)
 
