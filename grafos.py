@@ -5,10 +5,11 @@ import time
 import psutil
 from heap import *
 from math import sqrt
+from itertools import permutations
 
 class Grafo:
 	nome_output='output.txt'
-	def __init__(self,entrada_txt=False,formato_lista=False,formato_matriz=False,diretorio_grafo_distancias=None):
+	def __init__(self,entrada_txt=False,formato_lista=False,formato_matriz=False,diretorio_grafo_distancias=None,qtd_vertices_pra_analisar=None):
 		u'''
 		entrada_txt pode ser 'False' ou uma string contendo o endereço de um arquivo .txt com um grafo. Se for 'False', então significa que o arquivo com o grafo possui outro formato (.sql por exemplo, algo que ficará em aberto para possíveis evoluções do código). Mas caso seja uma string, então, o arquivo de texto com o grafo possui o seguinte formato:
 			
@@ -25,6 +26,8 @@ class Grafo:
 		2 4
 		'''
 		if diretorio_grafo_distancias:
+			assert(isinstance(qtd_vertices_pra_analisar,int))
+			self.qtd_vertices_pra_analisar=qtd_vertices_pra_analisar
 			lista=[]
 			with open(diretorio_grafo_distancias) as f:
 				for linha in f:
@@ -32,13 +35,16 @@ class Grafo:
 			self.qtd_vertices=int(lista[0][0])
 			lista=[[int(i[0]),int(i[1])] for i in lista[1:]]
 			dist=lambda xo,yo,x,y:sqrt(((x-xo)**2)+((y-yo)**2))
-			self.grafo_lista=[]
+			self.grafo_matriz=[]
 			for xo,yo in lista:
 				vertice=[]
 				for x,y in lista:
 					vertice.append(dist(xo,yo,x,y))
-				self.grafo_lista.append(vertice)
-
+				self.grafo_matriz.append(vertice)
+			self.matrix_view=True
+			self.list_view=False
+			self.grafo_com_pesos=True
+			self.coordenadas=lista
 
 		else:
 			if entrada_txt:
@@ -718,6 +724,110 @@ A menor componente conexa tem tamanho: %s\
 
 		return maiores_graus
 
+	def comprimento_caminho(self,caminho):
+		comprimento=0
+		for i in xrange(1,len(caminho)):
+			comprimento+=self.grafo_matriz[caminho[i-1]][caminho[i]]
+		return comprimento
+
+	def vertice_mais_proximo(self,indice_vertice):
+		distancia=float('inf')
+		indice_vertice_mais_proximo=None
+		for i,v in enumerate(self.grafo_matriz[indice_vertice]):
+			if v>0 and v<distancia:
+				indice_vertice_mais_proximo=i
+				distancia=v
+		return i
+
+	def menor_caminho(self,vertices):
+		permutacoes=permutations(vertices)
+		comprimento=float('inf')
+		caminho=[]
+		for p in permutacoes:
+			c=self.comprimento_caminho(p)
+			if c<comprimento:
+				caminho=p
+				comprimento=c
+		return caminho,comprimento
+
+	def caixeiro_viajante(self,vertices=None):
+		u'''
+		Separo o conjunto de pontos em 4 regiões: Nordeste(NO), Noroeste(NE), Sudeste(SE) e Sudoeste(SO).
+		Se alguma dessas regiões possuir uma quantidade de vértices menor ou igual a self.qtd_vertices_pra_analisar, então eu calculo o menor caminho dentro dessa região utilizando a força bruta. Caso contrário eu pego essa região e uso recurssão para separá-la em novas 4 partes (NO, NE, SE e SO) e vou fazendo assim até ter o caminho de todas as regiões.
+		Considero ciclos horários e anti-horários como sendo "... > NO > NE > SE > SO > NO > ..." e " ... > NE > NO > SO > SE > NE > ... ".
+		Sendo assim, para cada uma das quatro regiões eu tento criar caminhos utilizando vértices que vão percorrer toda a sua região e em seguida migrar para o clico seguinte utilizando uma das duas direções (horária ou anti-horária). No final, com os 8 caminhos que eu encontrar, verifico o mais curto e 
+		'''
+		if vertices==None:
+			vertices=range(self.qtd_vertices)
+		coordenadas=[self.coordenadas[i] for i in vertices]
+
+		intervalo_x=[coordenadas[0][0],coordenadas[0][0]]
+		intervalo_y=[coordenadas[0][1],coordenadas[0][1]]
+		for x,y in coordenadas:
+			if x<intervalo_x[0]:
+				intervalo_x[0]=x
+			elif x>intervalo_x[1]:
+				intervalo_x[1]=x
+			
+			if y<intervalo_y[0]:
+				intervalo_y[0]=y
+			elif y>intervalo_y[1]:
+				intervalo_y[1]=y
+		x_centro=sum(intervalo_x)/2
+		y_centro=sum(intervalo_y)/2
+
+		#dividindo em regiões 0=Noroeste, 1=Nordeste, 2=Sudeste, 3=Sudoeste
+		regioes=[]
+		vertices_por_regioes=[[],[],[],[]]
+		for i,v in enumerate(coordenadas):
+			if v[0]>x_centro: #leste
+				if v[1]>y_centro: #norte
+					r=1
+				else: #sul
+					r=2
+			else: #oeste
+				if v[1]>y_centro: #norte
+					r=0
+				else: #sul
+					r=3
+			regioes.append(r)
+			vertices_por_regioes[r].append(vertices[i])
+
+		caminhos=[]
+		comprimentos=[]
+		for regiao in vertices_por_regioes:
+			if len(regiao)<=self.qtd_vertices_pra_analisar:
+				caminho,comprimento=self.menor_caminho(regiao)
+			else:
+				caminho,comprimento=self.caixeiro_viajante(regiao)
+			caminhos.append(caminho)
+			comprimentos.append(comprimento)
+
+		lista_caminhos=[]
+		lista_comprimentos=[]
+		for sentido in [1,-1]:
+			for regiao in xrange(4):
+				if len(caminhos[regiao]):
+					caminho=list(caminhos[regiao])
+					comprimento=comprimentos[regiao]
+					for i in xrange(1,4):
+						proxima_regiao=(regiao+i*sentido)%4
+						if len(caminhos[proxima_regiao]):
+							comprimento+=comprimentos[proxima_regiao]+self.grafo_matriz[caminho[-1]][caminhos[proxima_regiao][0]]
+							caminho.extend(caminhos[proxima_regiao])
+					lista_caminhos.append(caminho)
+					lista_comprimentos.append(comprimento)
+		menor_comprimento=min(lista_comprimentos)
+		melhor_caminho=lista_caminhos[lista_comprimentos.index(menor_comprimento)]
+		return melhor_caminho,menor_comprimento
+
+	def caixeiro_viajante_com_volta(self):
+		caminho,comprimento=self.caixeiro_viajante()
+		comprimento+=self.grafo_matriz[caminho[0]][caminho[-1]]
+		caminho=[i+1 for i in caminho]
+		return caminho,comprimento
+
+
 if __name__ == "__main__":
 
 	########## Trabalho 1 ########## 
@@ -761,4 +871,18 @@ if __name__ == "__main__":
 	#print grafo.distancia_media()
 
 	######### Trabalho 3 ###########
-	grafo=Grafo(diretorio_grafo_distancias='points-5.txt')
+	texto=''
+	for i in [5,10,20,50,100,200,500,1000,2000,5000,7500,10000]:
+		arquivo='points-%s.txt'%i
+		grafo=Grafo(diretorio_grafo_distancias=arquivo,qtd_vertices_pra_analisar=10)
+		t0=time.time()
+		caminho,comprimento=grafo.caixeiro_viajante_com_volta()
+		dt=time.time()-t0
+		texto+='''
+arquivo: %s
+caminho: %s
+comprimento: %s
+tempo: %.2f segundos
+		'''%(arquivo,str(caminho)[1:-1],comprimento,dt)
+		open('resultado caixeiro viajante.txt','wb').write(texto)
+		print arquivo
