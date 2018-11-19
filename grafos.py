@@ -4,10 +4,11 @@
 import time
 import psutil
 from heap import *
+from math import sqrt
 
 class Grafo:
 	nome_output='output.txt'
-	def __init__(self,entrada_txt=False,formato_lista=False,formato_matriz=False):
+	def __init__(self,entrada_txt=False,formato_lista=False,formato_matriz=False,diretorio_grafo_distancias=None):
 		u'''
 		entrada_txt pode ser 'False' ou uma string contendo o endereço de um arquivo .txt com um grafo. Se for 'False', então significa que o arquivo com o grafo possui outro formato (.sql por exemplo, algo que ficará em aberto para possíveis evoluções do código). Mas caso seja uma string, então, o arquivo de texto com o grafo possui o seguinte formato:
 			
@@ -23,17 +24,34 @@ class Grafo:
 		2 3
 		2 4
 		'''
-		if entrada_txt:
-			try:
-				arquivo=open(entrada_txt,'r').read()
-				self.lista_geral=arquivo.splitlines() #no exemplo: self.lista_geral=["4","1 2","1 3","2 3","2 4"]
-				self.qtd_vertices=int(self.lista_geral[0])
-				self.grafo_com_pesos = False
-				self.criar_lista_grafo_a_partir_de_entrada_txt(formato_lista)
-				self.criar_matriz_grafo_a_partir_de_entrada_txt(formato_matriz)
-			except Exception,e:
-				print u'Houve algum erro na criação do grafo oriundo do arquivo txt indicado. Veja:\n\n'
-				print e
+		if diretorio_grafo_distancias:
+			lista=[]
+			with open(diretorio_grafo_distancias) as f:
+				for linha in f:
+					lista.append(linha[:-1].split(' '))
+			self.qtd_vertices=int(lista[0][0])
+			lista=[[int(i[0]),int(i[1])] for i in lista[1:]]
+			dist=lambda xo,yo,x,y:sqrt(((x-xo)**2)+((y-yo)**2))
+			self.grafo_lista=[]
+			for xo,yo in lista:
+				vertice=[]
+				for x,y in lista:
+					vertice.append(dist(xo,yo,x,y))
+				self.grafo_lista.append(vertice)
+
+
+		else:
+			if entrada_txt:
+				try:
+					arquivo=open(entrada_txt,'r').read()
+					self.lista_geral=arquivo.splitlines() #no exemplo: self.lista_geral=["4","1 2","1 3","2 3","2 4"]
+					self.qtd_vertices=int(self.lista_geral[0])
+					self.grafo_com_pesos = False
+					self.criar_lista_grafo_a_partir_de_entrada_txt(formato_lista)
+					self.criar_matriz_grafo_a_partir_de_entrada_txt(formato_matriz)
+				except Exception,e:
+					print u'Houve algum erro na criação do grafo oriundo do arquivo txt indicado. Veja:\n\n'
+					print e
 
 		open(self.nome_output,'wb') #abrindo no formato 'write byte' apenas pra criar um arquivo em branco com tal nome (ou apagar os dados de algum com o mesmo nome)
 		self.output=open(self.nome_output,'ab') #abrindo no formato 'append byte'
@@ -738,6 +756,9 @@ if __name__ == "__main__":
 	#grafo = Grafo(entrada_txt='teste2.txt', formato_lista = True, formato_matriz = False)
 	#grafo.gerar_arvore_da_bfs(2,output=False)
 	#print ""
-	grafo2 = Grafo(entrada_txt='teste.txt', formato_lista = False, formato_matriz = True)
-	print grafo2.prim(2)
+	#grafo2 = Grafo(entrada_txt='teste.txt', formato_lista = False, formato_matriz = True)
+	#print grafo2.prim(2)
 	#print grafo.distancia_media()
+
+	######### Trabalho 3 ###########
+	grafo=Grafo(diretorio_grafo_distancias='points-5.txt')
