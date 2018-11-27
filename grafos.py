@@ -24,8 +24,12 @@ class Grafo:
 		2 3
 		2 4
 		'''
-		if diretorio_grafo_distancias:
+		if diretorio_grafo_distancias: #caso se trate do problema do caixeiro viajante:
+			
+			#garantindo que a quantidades de vértices mínimas para a utilização do algoritmo guloso é um inteiro
 			assert(isinstance(qtd_vertices_pra_analisar,int))
+
+			#agora vou extrair do arquivo que contém o grafo, as coordenadas e o grafo no formato matriz
 			self.qtd_vertices_pra_analisar=qtd_vertices_pra_analisar
 			lista=[]
 			with open(diretorio_grafo_distancias) as f:
@@ -46,6 +50,7 @@ class Grafo:
 			self.coordenadas=lista
 
 		else:
+			#extraindo dos arquivos de texto os grafos nos formatos matriz e lista
 			if entrada_txt:
 				try:
 					arquivo=open(entrada_txt,'r').read()
@@ -892,6 +897,7 @@ if __name__ == "__main__":
 	#print grafo.distancia_media()
 
 	######### Trabalho 3 ###########
+	#capturando os resultados
 	texto=''
 	for i in [5,10,20,50,100,200,500,1000,2000,5000,7500,10000]:
 		arquivo='points-%s.txt'%i
