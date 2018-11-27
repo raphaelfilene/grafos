@@ -724,12 +724,14 @@ A menor componente conexa tem tamanho: %s\
 		return maiores_graus
 
 	def comprimento_caminho(self,caminho):
+		u'''Calcula o comprimento do caminho fornecido nos parâmetros'''
 		comprimento=0
 		for i in xrange(1,len(caminho)):
 			comprimento+=self.grafo_matriz[caminho[i-1]][caminho[i]]
 		return comprimento
 
 	def vizinho_mais_proximo(self,vertice,vizinhos):
+		u'''Dado o índice de um vértice e um conjunto de vértices vizinhos, este método retorna o índice do vizinho mais próximo e a distância até ele'''
 		distancia=float('inf')
 		vizinho=None
 		for v in vizinhos:
@@ -739,8 +741,12 @@ A menor componente conexa tem tamanho: %s\
 		return vizinho,distancia
 
 	def menor_caminho(self,vertices):
+		u'''É o algoritmo guloso que calcula um caminho mínimo (aproximadamente) que passe por cada um dos vértices, usando como critério de escolha sempre o vértice mais próximo do vértice que se está analisando atualmente. No final é retornado tanto o caminho quanto o comprimento dele.'''
+		
 		melhor_caminho=[]
 		comprimento_melhor_caminho=float('inf')
+		
+		#testarei os possíveis caminhos começando inicialmente cada um dos vértices por vez
 		for i,v in enumerate(vertices):
 			caminho=[v]
 			comprimento=0
@@ -763,14 +769,18 @@ A menor componente conexa tem tamanho: %s\
 		Considero ciclos horários e anti-horários como sendo "... > NO > NE > SE > SO > NO > ..." e " ... > NE > NO > SO > SE > NE > ... ".
 		Sendo assim, para cada uma das quatro regiões eu tento criar caminhos utilizando vértices que vão percorrer toda a sua região e em seguida migrar para o clico seguinte utilizando uma das duas direções (horária ou anti-horária). No final, com os 8 caminhos que eu encontrar, verifico o mais curto e 
 		'''
+		#se vertices==None, então utilizarei todo o conjunto de vértices do grafo, ou seja, uso vertices=None na primeira vez que chamo este método
 		if vertices==None:
 			vertices=range(self.qtd_vertices)
 
+		#se a quantidade de vértices for menor ou igual a uma quantidade mínima estabelecida pelo usuário, então eu retorno o caminho mínimo desse conjunto de vértices utilizando o algoritmo guloso
 		if len(vertices)<=self.qtd_vertices_pra_analisar:
 			return self.menor_caminho(vertices)
 
+		#separando as coordenadas do conjunto de vértices dado
 		coordenadas=[self.coordenadas[i] for i in vertices]
 
+		#capturando os maiores e menores valores de x e y
 		intervalo_x=[coordenadas[0][0],coordenadas[0][0]]
 		intervalo_y=[coordenadas[0][1],coordenadas[0][1]]
 		for x,y in coordenadas:
@@ -783,26 +793,27 @@ A menor componente conexa tem tamanho: %s\
 				intervalo_y[0]=y
 			elif y>intervalo_y[1]:
 				intervalo_y[1]=y
+
+		#achando os valores médios de x e y
 		x_centro=sum(intervalo_x)/2
 		y_centro=sum(intervalo_y)/2
 
 		#dividindo em regiões 0=Noroeste, 1=Nordeste, 2=Sudeste, 3=Sudoeste
-		regioes=[]
-		vertices_por_regioes=[[],[],[],[]]
+		vertices_por_regioes=[[],[],[],[]] #guardarei os índices dos vértices numa i-ésima lista dentro de uma lista de listas, onde i==região pertencente a este vértice
 		for i,v in enumerate(coordenadas):
 			if v[0]>x_centro: #leste
 				if v[1]>y_centro: #norte
-					r=1
+					r=1 #nordeste
 				else: #sul
-					r=2
+					r=2 #sudeste
 			else: #oeste
 				if v[1]>y_centro: #norte
-					r=0
+					r=0 #noroeste
 				else: #sul
-					r=3
-			regioes.append(r)
+					r=3 #sudoeste
 			vertices_por_regioes[r].append(vertices[i])
 
+		#agora capturarei os caminhos e os comprimentos de cada uma das 4 regiões
 		caminhos=[]
 		comprimentos=[]
 		for regiao in vertices_por_regioes:
@@ -810,25 +821,28 @@ A menor componente conexa tem tamanho: %s\
 			caminhos.append(caminho)
 			comprimentos.append(comprimento)
 
+		#agora que tenho os caminhos das regiões NO, NE, SE e SO, tentarei uní-las nas ordens seguintes e capturar a de menor comprimento: NO-NE-SE-SO, NE-SE-SO-NO, SE-SO-NO-NE e SO-NO-NE-SE
 		lista_caminhos=[]
 		lista_comprimentos=[]
-		for sentido in [1,-1]:
-			for regiao in xrange(4):
-				if len(caminhos[regiao]):
-					caminho=list(caminhos[regiao])
-					comprimento=comprimentos[regiao]
-					for i in xrange(1,4):
-						proxima_regiao=(regiao+i*sentido)%4
-						if len(caminhos[proxima_regiao]):
-							comprimento+=comprimentos[proxima_regiao]+self.grafo_matriz[caminho[-1]][caminhos[proxima_regiao][0]]
-							caminho.extend(caminhos[proxima_regiao])
-					lista_caminhos.append(caminho)
-					lista_comprimentos.append(comprimento)
+		for regiao in xrange(4):
+			if len(caminhos[regiao]):
+				caminho=list(caminhos[regiao])
+				comprimento=comprimentos[regiao]
+				for i in xrange(1,4):
+					proxima_regiao=(regiao+i*sentido)%4
+					if len(caminhos[proxima_regiao]):
+						comprimento+=comprimentos[proxima_regiao]+self.grafo_matriz[caminho[-1]][caminhos[proxima_regiao][0]]
+						caminho.extend(caminhos[proxima_regiao])
+				lista_caminhos.append(caminho)
+				lista_comprimentos.append(comprimento)
 		menor_comprimento=min(lista_comprimentos)
 		melhor_caminho=lista_caminhos[lista_comprimentos.index(menor_comprimento)]
 		return melhor_caminho,menor_comprimento
 
 	def caixeiro_viajante_com_volta(self):
+		u'''É análogo ao método "caixeiro_viajante" porém com duas alterações:
+		1) acrescento o vértice de partida no final para fechar o ciclo (apenas para rodar no site do professor)
+		2) incremento em 1 os índices dos vértices para se adequar a escrita do site do professor'''
 		caminho,comprimento=self.caixeiro_viajante()
 		comprimento+=self.grafo_matriz[caminho[0]][caminho[-1]]
 		caminho=[i+1 for i in caminho]
